@@ -20,37 +20,50 @@
 #include "clang/Frontend/CompilerInstance.h"                                                                                                                                                                   
 #include "llvm/Support/raw_ostream.h"
 
+#include "clang/Basic/SourceManager.h"
+#include "clang/Rewrite/Rewriter.h"
+
+
 using namespace clang;
 //#include "PluginCLTRSAction.h"
 
 namespace CLTRS {
 
-				class CLTRSConsumer : public ASTConsumer {
-								public:
-												virtual bool HandleTopLevelDecl(DeclGroupRef DG) {
-																for (DeclGroupRef::iterator i = DG.begin(), e = DG.end(); i != e; ++i) {
-																				const Decl *D = *i;
-#if 1													
-																	   	D->print(llvm::errs());
-																				llvm::errs() << "\ntop-level-decl type: \"" << D->getDeclKindName() << "\"\n";
-																				if (const NamedDecl *ND = dyn_cast<NamedDecl>(D))
-																								//       llvm::errs() << "top-level-decl: \"" << ND->getName()<< " ||| " << "\"\n";
-																								llvm::errs() << "top-level-decl: \"" << ND->getNameAsString() << "\"\n\n";
-#endif
-}
+		class CLTRSConsumer : public ASTConsumer {
+    private:
+						Rewriter Rewrite;
+						//Diagnostic &Diags;
+						//LangOptions const &LangOpts;
+						//Preprocessor& PP;
 
-																return true;
-												}
+						ASTContext *Context;
+						SourceManager *SM;
+						TranslationUnitDecl *TUDecl;
+						FileID MainFileID;
+						char const *MainFileStart, *MainFileEnd;
 
+
+
+
+				public:
+					virtual void Initialize(ASTContext &Ctx); 
+					virtual bool HandleTopLevelDecl(DeclGroupRef DG);
+       
 #if 0
-												virtual void HandleTranslationUnit(ASTContext &Context) {
-                //pritn all type test
-                llvm::errs() << " In handleTranslationUnit dump\n";
-																for(ASTContext::type_iterator I = Context.types_begin(),E = Context.types_end();I != E; I++)
-																   (*I)->dump();
-												} 
-#endif												
-				};
+						virtual void HandleTranslationUnit(ASTContext &Context) {
+								//pritn all type test
+								llvm::errs() << " In handleTranslationUnit dump\n";
+								for(ASTContext::type_iterator I = Context.types_begin(),E = Context.types_end();I != E; I++)
+										(*I)->dump();
+						} 
+#endif											
+   private:
+
+						void HandleTopLevelSingleDecl(Decl *D);
+						void HandleFuncDefinition(FunctionDecl *FD);
+						void HandleStmt(Stmt *ST);
+
+		};
 
 
 

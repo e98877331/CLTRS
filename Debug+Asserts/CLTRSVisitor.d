@@ -1,7 +1,7 @@
 /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/Debug+Asserts/CLTRSVisitor.o \
   /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/Debug+Asserts/CLTRSVisitor.d: \
   CLTRSVisitor.cpp \
-  /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/CLTRSVisitor.h \
+  /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/include/CLTRSVisitor.h \
   /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/AST/AST.h \
   /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/AST/ASTContext.h \
   /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Basic/AddressSpaces.h \
@@ -145,7 +145,7 @@
   /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Basic/Builtins.h \
   /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Basic/Builtins.def
 
-/home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/CLTRSVisitor.h:
+/home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/include/CLTRSVisitor.h:
 
 /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/AST/AST.h:
 

@@ -1,6 +1,7 @@
 /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/Debug+Asserts/CLTRS.o \
   /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/Debug+Asserts/CLTRS.d: \
   CLTRS.cpp \
+  /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/include/CLTRS.h \
   /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Frontend/FrontendPluginRegistry.h \
   /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Frontend/FrontendAction.h \
   /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Basic/LLVM.h \
@@ -126,7 +127,12 @@
   /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Basic/SourceManager.h \
   /home/michael/NewDisk/llvmN/llvm/include/llvm/Support/MemoryBuffer.h \
   /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Lex/ModuleLoader.h \
-  /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Basic/Module.h
+  /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Basic/Module.h \
+  /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Rewrite/Rewriter.h \
+  /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Rewrite/DeltaTree.h \
+  /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Rewrite/RewriteRope.h
+
+/home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/include/CLTRS.h:
 
 /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Frontend/FrontendPluginRegistry.h:
 
@@ -379,3 +385,9 @@
 /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Lex/ModuleLoader.h:
 
 /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Basic/Module.h:
+
+/home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Rewrite/Rewriter.h:
+
+/home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Rewrite/DeltaTree.h:
+
+/home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Rewrite/RewriteRope.h:
