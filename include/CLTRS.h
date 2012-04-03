@@ -23,6 +23,7 @@
 #include "clang/Basic/SourceManager.h"
 #include "clang/Rewrite/Rewriter.h"
 
+#include "include/ScriptWriter.h"
 
 using namespace clang;
 //#include "PluginCLTRSAction.h"
@@ -42,7 +43,7 @@ namespace CLTRS {
 						FileID MainFileID;
 						char const *MainFileStart, *MainFileEnd;
 
-
+      ScriptWriter SWriter;
 
 
 				public:
@@ -68,7 +69,6 @@ namespace CLTRS {
 
 
 }
-
 
 
 #endif
