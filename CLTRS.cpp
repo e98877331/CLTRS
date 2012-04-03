@@ -1,4 +1,5 @@
 #include "include/CLTRS.h"
+
 using namespace CLTRS;
 
 
@@ -15,6 +16,8 @@ void CLTRSConsumer::Initialize(ASTContext &Ctx)
 		MainFileEnd = MainBuf->getBufferEnd();
 
 		Rewrite.setSourceMgr(Context->getSourceManager(), Context->getLangOptions());
+
+  SWriter.setRewriter(Rewrite);
 
 		std::string Preamble;
 		Preamble += "testinggggggggggggggggggggggggggg";
@@ -62,7 +65,7 @@ virtual void HandleTranslationUnit(ASTContext &Context) {
 void CLTRSConsumer::HandleTopLevelSingleDecl(Decl *D)
 {
 		if (FunctionDecl *FD = dyn_cast<FunctionDecl>(D)) {
-				HandleFuncDefinition(FD);
+				SWriter.handleFuncDefinition(FD);
 		}
 
 
