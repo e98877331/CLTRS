@@ -1,3 +1,5 @@
+/* this is header of RenderScript Script Writer */
+
 #ifndef __SCRIPTWRITER__
 #define __SCRIPTWRITER__
 
@@ -28,6 +30,8 @@ inline void setRewriter(Rewriter &R)
 
 
 bool handleFuncDefinition(FunctionDecl *FD);
+bool handleFunctionNameAndParameter(FunctionDecl *FD);
+
 
 void handleStmt(Stmt *ST);
 
