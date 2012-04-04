@@ -70,6 +70,7 @@ void CLTRSConsumer::HandleTopLevelSingleDecl(Decl *D)
 
 
 }
+//unused function should be deleted
 void CLTRSConsumer::HandleFuncDefinition(FunctionDecl *FD)
 {
 
@@ -90,6 +91,7 @@ void CLTRSConsumer::HandleFuncDefinition(FunctionDecl *FD)
 
 }
 
+//unused function should be deleted
 void CLTRSConsumer::HandleStmt(Stmt *ST)
 {
 
