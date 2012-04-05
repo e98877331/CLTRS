@@ -1,4 +1,5 @@
 #include "include/ScriptWriter.h"
+#include <sstream>
 using namespace CLTRS;
 
 bool ScriptWriter::handleFuncDefinition(FunctionDecl *FD)
@@ -34,14 +35,20 @@ bool ScriptWriter::handleFunctionNameAndParameter(FunctionDecl *FD)
 				sEnd = FD->getTypeSourceInfo()->getTypeLoc().getSourceRange().getEnd();
 				//sBegin.dump(Rewrite.getSourceMgr());
 				//sEnd.dump(Rewrite.getSourceMgr());
-
+    stringstream newFunctionDecl;
+    newFunctionDecl<<"void root(";
 				for(FunctionDecl::param_iterator PI =  FD->param_begin();PI != FD->param_end();PI++)
 				{
 								std::string symName = (*PI)->getName();
 								std::string symType = (*PI)->getTypeSourceInfo()->getType().getAsString();
-								//Qualifiers qualifiers = (*PI)->getTypeSourceInfo()->getType().getLocalQualifiers();       
-								// if(qualifiers.hasConst())
-								if((*PI)->getTypeSourceInfo()->getType().getTypePtr()->getPointeeType().isConstQualified())
+        symType = Modifier.modifyString(symType,ASQ);
+
+        newFunctionDecl << symType << symName;
+								
+								if(PI != FD->param_end()-1)
+								newFunctionDecl << ",";
+       
+	/*if((*PI)->getTypeSourceInfo()->getType().getTypePtr()->getPointeeType().isConstQualified())
 								{ 
 
 												llvm::errs() << "akl;jg;lakjgkl;djgl;kasdjgl;aksdjgkl;asdjgkl;asdjgkl;jkljdkgjkj,mcv./,jmkojsfjkl;jkjk\n";
@@ -49,11 +56,15 @@ bool ScriptWriter::handleFunctionNameAndParameter(FunctionDecl *FD)
 								}
 								else
 												llvm::errs() << "no const find\n";
+												*/
 
 
-								llvm::errs() << symName << "," << symType << "\n";
+//								llvm::errs() << symName << "," << symType << "\n";
 				}
-
+				
+      newFunctionDecl << ")";
+SourceRange tempRange(sBegin,sEnd);
+Rewrite->ReplaceText(tempRange,newFunctionDecl.str());
 
 llvm::errs() << "\nttestst\n";
 llvm::errs() << FD->getType().getAsString() << "\n";
