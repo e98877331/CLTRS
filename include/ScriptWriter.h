@@ -10,6 +10,7 @@
 #include "clang/Basic/SourceManager.h"
 #include "clang/Rewrite/Rewriter.h"
 
+#include "StringModifier.h"
 using namespace clang;
 //using namespace CLTRS;
 
@@ -19,13 +20,14 @@ namespace CLTRS
 class ScriptWriter
 {
 private:
-Rewriter Rewrite;
+Rewriter *Rewrite;
+StringModifier Modifier;
 
 
 public:
 ScriptWriter(){}
 
-inline void setRewriter(Rewriter &R)
+inline void setRewriter(Rewriter *R)
 { Rewrite = R;}
 
 

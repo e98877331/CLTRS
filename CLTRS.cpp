@@ -17,10 +17,10 @@ void CLTRSConsumer::Initialize(ASTContext &Ctx)
 
 		Rewrite.setSourceMgr(Context->getSourceManager(), Context->getLangOptions());
 
-  SWriter.setRewriter(Rewrite);
+  SWriter.setRewriter(&Rewrite);
 
 		std::string Preamble;
-		Preamble += "testinggggggggggggggggggggggggggg";
+		/*Preamble += "testinggggggggggggggggggggggggggg";
 		Rewrite.InsertText(SM->getLocForStartOfFile(MainFileID), Preamble, false);
 
 
@@ -31,7 +31,7 @@ void CLTRSConsumer::Initialize(ASTContext &Ctx)
 																llvm::errs() << std::string(RewriteBuf->begin(), RewriteBuf->end());
 																}
 																		    
-
+ */
 }
 
 

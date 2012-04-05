@@ -50,14 +50,23 @@ namespace CLTRS {
 					virtual void Initialize(ASTContext &Ctx); 
 					virtual bool HandleTopLevelDecl(DeclGroupRef DG);
        
-#if 0
+ 
 						virtual void HandleTranslationUnit(ASTContext &Context) {
+
+						  llvm::errs()<<"handling translation unit \n";
+    if (RewriteBuffer const *RewriteBuf =
+				          Rewrite.getRewriteBufferFor(MainFileID)) {
+														    llvm::errs() << "Rewriting...\n";
+																llvm::errs() << std::string(RewriteBuf->begin(), RewriteBuf->end());
+																}
+																
 								//pritn all type test
-								llvm::errs() << " In handleTranslationUnit dump\n";
+/*								llvm::errs() << " In handleTranslationUnit dump\n";
 								for(ASTContext::type_iterator I = Context.types_begin(),E = Context.types_end();I != E; I++)
 										(*I)->dump();
+										*/
 						} 
-#endif											
+											
    private:
 
 						void HandleTopLevelSingleDecl(Decl *D);
