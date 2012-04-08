@@ -11,8 +11,8 @@ CLTRSTable * StringModifier::getTableByTableType(TableType tt)
 {
  switch(tt)
 	{
-   case ASQ:
-			 return ASQualifiers;
+   case MainTable:
+			 return TranslateTable;
 		 default:
 			assert("no such table type ");
 

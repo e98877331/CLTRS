@@ -8,7 +8,7 @@ namespace CLTRS
 {
 enum TableType
 {
- ASQ //ASQualifiers
+ MainTable //var Decl table
 };
 
 typedef struct
@@ -18,8 +18,7 @@ string RSWord;
 } CLTRSTable;
 
 
-//address space qualifiers
-static CLTRSTable ASQualifiers[] = 
+static CLTRSTable TranslateTable[] = 
 {
 {"__global",""},
 {"__local",""},
