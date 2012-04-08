@@ -18,6 +18,7 @@ void CLTRSConsumer::Initialize(ASTContext &Ctx)
 		Rewrite.setSourceMgr(Context->getSourceManager(), Context->getLangOptions());
 
   SWriter.setRewriter(&Rewrite);
+		SWriter.setContext(Context);
 
 		std::string Preamble;
 		/*Preamble += "testinggggggggggggggggggggggggggg";

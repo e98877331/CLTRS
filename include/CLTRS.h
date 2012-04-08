@@ -53,7 +53,7 @@ namespace CLTRS {
  
 						virtual void HandleTranslationUnit(ASTContext &Context) {
 
-						  llvm::errs()<<"handling translation unit \n";
+						  //llvm::errs()<<"handling translation unit \n";
     if (RewriteBuffer const *RewriteBuf =
 				          Rewrite.getRewriteBufferFor(MainFileID)) {
 														    llvm::errs() << "Rewriting...\n";

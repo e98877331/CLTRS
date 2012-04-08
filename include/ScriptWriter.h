@@ -22,7 +22,7 @@ class ScriptWriter
 private:
 Rewriter *Rewrite;
 StringModifier Modifier;
-
+ASTContext *Context;
 
 public:
 ScriptWriter(){}
@@ -30,12 +30,14 @@ ScriptWriter(){}
 inline void setRewriter(Rewriter *R)
 { Rewrite = R;}
 
+inline void setContext(ASTContext *C)
+{ Context = C;}
 
 bool handleFuncDefinition(FunctionDecl *FD);
 bool handleFunctionNameAndParameter(FunctionDecl *FD);
 
 
-void handleStmt(Stmt *ST);
+Stmt *handleStmt(Stmt *ST);
 
 };
 
