@@ -13,7 +13,7 @@ namespace CLTRS
 		{
 				public:
 						StringModifier(){}
-						string modifyString(string in,TableType tt);
+						string replaceStringAccordingToTable(string in,TableType tt);
     private:
 						string replaceTokAccordingTable(string s, CLTRSTable * tb)
 						{

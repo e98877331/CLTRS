@@ -34,7 +34,7 @@ string StringModifier::replaceTokAccordingTable(string s, CLTRSTable * tb,bool &
 		return s;
 }
 
-string StringModifier::modifyString(string in,TableType tt)
+string StringModifier::replaceStringAccordingToTable(string in,TableType tt)
 {
 		istringstream iss(in);
   stringstream outss;
