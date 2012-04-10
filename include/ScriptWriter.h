@@ -3,6 +3,9 @@
 #ifndef __SCRIPTWRITER__
 #define __SCRIPTWRITER__
 
+#include <map>
+#include <vector>
+
 #include "clang/AST/AST.h"
 
 #include "llvm/Support/raw_ostream.h"
@@ -24,6 +27,8 @@ Rewriter *Rewrite;
 StringModifier Modifier;
 ASTContext *Context;
 
+std::map<std::string,std::string> distributeUnit;
+
 public:
 ScriptWriter(){}
 
@@ -34,10 +39,16 @@ inline void setContext(ASTContext *C)
 { Context = C;}
 
 bool handleFuncDefinition(FunctionDecl *FD);
-bool handleFunctionNameAndParameter(FunctionDecl *FD);
+bool handleFunctionNameAndParameter(FunctionDecl *FD,bool toRoot = false);
 
 
 Stmt *handleStmt(Stmt *ST);
+
+
+
+Stmt *RewriteArraySubscript(ArraySubscriptExpr *ASE);
+
+Stmt *RewriteCallExpr(CallExpr * CE);
 
 };
 

@@ -24,7 +24,7 @@
 #include "clang/Rewrite/Rewriter.h"
 
 #include "include/ScriptWriter.h"
-
+#include <sstream>
 using namespace clang;
 //#include "PluginCLTRSAction.h"
 
@@ -44,6 +44,7 @@ namespace CLTRS {
 						char const *MainFileStart, *MainFileEnd;
 
       ScriptWriter SWriter;
+						StringModifier Modifier;
 
 
 				public:
@@ -57,7 +58,19 @@ namespace CLTRS {
     if (RewriteBuffer const *RewriteBuf =
 				          Rewrite.getRewriteBufferFor(MainFileID)) {
 														    llvm::errs() << "Rewriting...\n";
-																llvm::errs() << std::string(RewriteBuf->begin(), RewriteBuf->end());
+																		std::string output = std::string(RewriteBuf->begin(), RewriteBuf->end());
+                  std::stringstream outstream(output),finalOStream;
+																		char line[256];
+																		
+																		//final text replacement, pure string handle
+																		//FIXME:very ugly code
+																		while(!outstream.eof())
+																		{
+                  outstream.getline(line,256);
+																		
+																		finalOStream << Modifier.replaceStringAccordingToTable(line,MainTable)<< "\n";
+																		}
+																llvm::errs() << finalOStream.str();
 																}
 																
 								//pritn all type test
