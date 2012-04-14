@@ -41,7 +41,7 @@ bool ScriptWriter::handleFunctionNameAndParameter(FunctionDecl *FD,bool toRoot)
 
 		if(toRoot)
 		{
-				newFunctionDecl<<"void root(";
+				newFunctionDecl<<"void root( ";
 				for(FunctionDecl::param_iterator PI =  FD->param_begin();PI != FD->param_end();PI++)
 				{
 						std::string symName = (*PI)->getName();
@@ -51,7 +51,7 @@ bool ScriptWriter::handleFunctionNameAndParameter(FunctionDecl *FD,bool toRoot)
 						newFunctionDecl << symType << symName;
 
 						if(PI != FD->param_end()-1)
-								newFunctionDecl << ",";
+								newFunctionDecl << " , ";
 
 						/*if((*PI)->getTypeSourceInfo()->getType().getTypePtr()->getPointeeType().isConstQualified())
 								{ 
@@ -70,22 +70,22 @@ bool ScriptWriter::handleFunctionNameAndParameter(FunctionDecl *FD,bool toRoot)
 		}
 		else{ //end to end case
 
-		newFunctionDecl<<"void " << FD->getNameInfo().getAsString() << "(";
+		newFunctionDecl<<"void " << FD->getNameInfo().getAsString() << "( ";
 				for(FunctionDecl::param_iterator PI =  FD->param_begin();PI != FD->param_end();PI++)
 				{
 						std::string symName = (*PI)->getName();
 						std::string symType = (*PI)->getTypeSourceInfo()->getType().getAsString();
 						//symType = Modifier.replaceStringAccordingToTable(symType,MainTable);
 
-						newFunctionDecl << symType << symName;
+						newFunctionDecl <<symType << symName;
 
 						if(PI != FD->param_end()-1)
-								newFunctionDecl << ",";
+								newFunctionDecl << " , ";
     }
 		}
 
 
-  newFunctionDecl << ")";
+  newFunctionDecl << " )";
 		SourceRange tempRange(sBegin,sEnd);
 		Rewrite->ReplaceText(tempRange,newFunctionDecl.str());
 

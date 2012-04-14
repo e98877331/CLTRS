@@ -38,7 +38,6 @@ string StringModifier::replaceStringAccordingToTable(string in,TableType tt)
 {
 		istringstream iss(in);
   stringstream outss;
-		
 		CLTRSTable * table = getTableByTableType(tt);
 
 		do
