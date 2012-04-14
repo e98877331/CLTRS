@@ -9,7 +9,7 @@ bool ScriptWriter::handleFuncDefinition(FunctionDecl *FD)
 		{  
 
 				if(handleFunctionNameAndParameter(FD,false))
-
+  //   if(true)
 						if(NamedDecl *ND = dyn_cast<NamedDecl>(FD))
 						{
 								//			FD->dump();
@@ -75,7 +75,7 @@ bool ScriptWriter::handleFunctionNameAndParameter(FunctionDecl *FD,bool toRoot)
 				{
 						std::string symName = (*PI)->getName();
 						std::string symType = (*PI)->getTypeSourceInfo()->getType().getAsString();
-						symType = Modifier.replaceStringAccordingToTable(symType,MainTable);
+						//symType = Modifier.replaceStringAccordingToTable(symType,MainTable);
 
 						newFunctionDecl << symType << symName;
 

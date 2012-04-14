@@ -46,8 +46,15 @@ namespace CLTRS {
       ScriptWriter SWriter;
 						StringModifier Modifier;
 
+      string package;
 
 				public:
+				 void setPackage(string s)
+					{
+					package = s;
+					//llvm::errs()<< package <<"\n";
+					}
+					
 					virtual void Initialize(ASTContext &Ctx); 
 					virtual bool HandleTopLevelDecl(DeclGroupRef DG);
        

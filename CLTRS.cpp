@@ -21,11 +21,14 @@ void CLTRSConsumer::Initialize(ASTContext &Ctx)
 		SWriter.setContext(Context);
 
 		std::string Preamble;
-		/*Preamble += "testinggggggggggggggggggggggggggg";
-		Rewrite.InsertText(SM->getLocForStartOfFile(MainFileID), Preamble, false);
+		Preamble += "#pragma version(1)\n";
+		Preamble += "#pragma rs java_package_name(";
+		Preamble += package;
+		Preamble += ")\n";
+		Rewrite.InsertText(SM->getLocForStartOfFile(MainFileID), Preamble, true);
 
 
-
+/*
     if (RewriteBuffer const *RewriteBuf =
 				          Rewrite.getRewriteBufferFor(MainFileID)) {
 														    llvm::errs() << "Rewriting...\n";
@@ -37,11 +40,15 @@ void CLTRSConsumer::Initialize(ASTContext &Ctx)
 
 
 bool CLTRSConsumer::HandleTopLevelDecl(DeclGroupRef DG) 
-{
+{ 
+/*
+										  Rewrite.InsertText(SM->getLocForStartOfFile(MainFileID), Preamble, false);
+*/
 
 		for (DeclGroupRef::iterator I = DG.begin(), E = DG.end(); I != E; ++I) {
 				HandleTopLevelSingleDecl(*I);
 		}
+
 		/*    
 								for (DeclGroupRef::iterator i = DG.begin(), e = DG.end(); i != e; ++i) {
 								const Decl *D = *i;
