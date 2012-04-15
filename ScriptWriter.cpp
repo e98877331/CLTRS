@@ -1,6 +1,9 @@
 #include "include/ScriptWriter.h"
 #include <sstream>
 #include "llvm/ADT/APInt.h"
+
+#include "Config.h"
+
 using namespace CLTRS;
 
 bool ScriptWriter::handleFuncDefinition(FunctionDecl *FD)
@@ -8,7 +11,7 @@ bool ScriptWriter::handleFuncDefinition(FunctionDecl *FD)
 		if(FD->hasBody()) // check if not prototype 
 		{  
 
-				if(handleFunctionNameAndParameter(FD,false))
+				if(handleFunctionNameAndParameter(FD,TRANSFER_TO_ROOT))
   //   if(true)
 						if(NamedDecl *ND = dyn_cast<NamedDecl>(FD))
 						{
@@ -48,7 +51,7 @@ bool ScriptWriter::handleFunctionNameAndParameter(FunctionDecl *FD,bool toRoot)
 						std::string symType = (*PI)->getTypeSourceInfo()->getType().getAsString();
 						symType = Modifier.replaceStringAccordingToTable(symType,MainTable);
 
-						newFunctionDecl << symType << symName;
+						newFunctionDecl << symType << " " << symName;
 
 						if(PI != FD->param_end()-1)
 								newFunctionDecl << " , ";
@@ -77,7 +80,7 @@ bool ScriptWriter::handleFunctionNameAndParameter(FunctionDecl *FD,bool toRoot)
 						std::string symType = (*PI)->getTypeSourceInfo()->getType().getAsString();
 						//symType = Modifier.replaceStringAccordingToTable(symType,MainTable);
 
-						newFunctionDecl <<symType << symName;
+						newFunctionDecl <<symType <<" "<< symName;
 
 						if(PI != FD->param_end()-1)
 								newFunctionDecl << " , ";
@@ -129,7 +132,7 @@ Stmt *ScriptWriter::handleStmt(Stmt *ST)
 		if(CallExpr *CE = dyn_cast<CallExpr>(ST))
 				return RewriteCallExpr(CE);
 
-		llvm::errs()<<"-------------------\n";
+		llvm::errs()<<"<-----back level------\n";
 		return ST;
 
 }
