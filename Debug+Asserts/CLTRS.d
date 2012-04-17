@@ -132,6 +132,7 @@
   /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Rewrite/DeltaTree.h \
   /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Rewrite/RewriteRope.h \
   /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/include/ScriptWriter.h \
+  /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/Config.h \
   /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/include/StringModifier.h \
   /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/include/CLTRSTable.h
 
@@ -396,6 +397,8 @@
 /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/../../include/clang/Rewrite/RewriteRope.h:
 
 /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/include/ScriptWriter.h:
+
+/home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/Config.h:
 
 /home/michael/NewDisk/llvmN/llvm/tools/clang/examples/CLTRS/include/StringModifier.h:
 

@@ -8,13 +8,15 @@ namespace CLTRS{
 class CLTRSConsumer;
 class CLTRSAction : public PluginASTAction {
     private:
-    string package;
+    string arg_package;
+				bool arg_to_root = false;
 
 				CLTRSConsumer *CLTRS;
 
 				void settingArg()
 				{
-																				  CLTRS->setPackage(package);
+																				  CLTRS->setPackage(arg_package); 
+																						CLTRS->setToRoot(arg_to_root); //if arg_to_root is true, then replace all function name to root when output;
 				}
 				
 				protected:
@@ -48,10 +50,14 @@ class CLTRSAction : public PluginASTAction {
 																				else
 																				{
      //               llvm::errs() << " in setting package "<<args.size()<< " " << args[i]<< "\n";
-							              package = args[i];															
+							              arg_package = args[i];															
 																				}
 
 																}
+														 else if (args[i] == "-to-root"){
+																		 arg_to_root = true;
+															}
+															
 												}
 												if (args.size() && args[0] == "help")
 																PrintHelp(llvm::errs());

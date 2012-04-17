@@ -10,6 +10,7 @@
 #define FLT_EPSILON 0x1.0p-23f
 
 typedef unsigned int uint;
+typedef int size_t;
 
 typedef __attribute__((ext_vector_type(2)))  int int2;                                                                                                                                                         
 typedef __attribute__((ext_vector_type(3)))  float float3;

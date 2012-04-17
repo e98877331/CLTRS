@@ -23,13 +23,16 @@
 #include "clang/Basic/SourceManager.h"
 #include "clang/Rewrite/Rewriter.h"
 
-#include "include/ScriptWriter.h"
+//#include "include/ScriptWriter.h"
+#include <string>
 #include <sstream>
+using namespace std;
 using namespace clang;
 //#include "PluginCLTRSAction.h"
 
 namespace CLTRS {
-
+  class ScriptWriter;
+		class StringModifier;
 		class CLTRSConsumer : public ASTConsumer {
     private:
 						Rewriter Rewrite;
@@ -43,50 +46,28 @@ namespace CLTRS {
 						FileID MainFileID;
 						char const *MainFileStart, *MainFileEnd;
 
-      ScriptWriter SWriter;
-						StringModifier Modifier;
+      ScriptWriter *SWriter;
+						StringModifier *Modifier;
 
-      string package;
+      //arguments from plugin
+      string arg_package;
+						bool arg_to_root;
 
 				public:
-				 void setPackage(string s)
-					{
-					package = s;
-					//llvm::errs()<< package <<"\n";
-					}
+				 void setPackage(string s){arg_package = s;}
+					void setToRoot(bool b){arg_to_root = b;}
 					
+     
+					inline Rewriter *getRewriter(){return &Rewrite;}
+					inline ASTContext *getASTContext(){return Context;}
+					inline bool getArgToRoot(){return arg_to_root;}
+
+
 					virtual void Initialize(ASTContext &Ctx); 
 					virtual bool HandleTopLevelDecl(DeclGroupRef DG);
        
  
-						virtual void HandleTranslationUnit(ASTContext &Context) {
-
-						  //llvm::errs()<<"handling translation unit \n";
-    if (RewriteBuffer const *RewriteBuf =
-				          Rewrite.getRewriteBufferFor(MainFileID)) {
-														    llvm::errs() << "Rewriting...\n";
-																		std::string output = std::string(RewriteBuf->begin(), RewriteBuf->end());
-                  std::stringstream outstream(output),finalOStream;
-																		char line[256];
-																		
-																		//final text replacement, pure string handle
-																		//FIXME:very ugly code
-																		while(!outstream.eof())
-																		{
-                  outstream.getline(line,256);
-																		
-																		finalOStream << Modifier.replaceStringAccordingToTable(line,MainTable)<< "\n";
-																		}
-																llvm::errs() << finalOStream.str();
-																}
-																
-								//pritn all type test
-/*								llvm::errs() << " In handleTranslationUnit dump\n";
-								for(ASTContext::type_iterator I = Context.types_begin(),E = Context.types_end();I != E; I++)
-										(*I)->dump();
-										*/
-						} 
-											
+						virtual void HandleTranslationUnit(ASTContext &Context); 											
    private:
 
 						void HandleTopLevelSingleDecl(Decl *D);

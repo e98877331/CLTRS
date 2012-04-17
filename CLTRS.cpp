@@ -1,11 +1,15 @@
+#include <string>
 #include "include/CLTRS.h"
-
+#include "include/ScriptWriter.h"
+#include "include/StringModifier.h"
 using namespace CLTRS;
-
+using namespace std;
 
 
 void CLTRSConsumer::Initialize(ASTContext &Ctx)
 {
+  SWriter = new ScriptWriter();
+		Modifier = new StringModifier();
 		Context = &Ctx;
 		SM = &Context->getSourceManager();
 		//TUDecl = Context->getTranslationUnitDecl();
@@ -16,14 +20,14 @@ void CLTRSConsumer::Initialize(ASTContext &Ctx)
 		MainFileEnd = MainBuf->getBufferEnd();
 
 		Rewrite.setSourceMgr(Context->getSourceManager(), Context->getLangOptions());
-
-  SWriter.setRewriter(&Rewrite);
-		SWriter.setContext(Context);
+  SWriter->initialize(this);
+  //SWriter.setRewriter(&Rewrite);
+		//SWriter.setContext(Context);
 
 		std::string Preamble;
 		Preamble += "#pragma version(1)\n";
 		Preamble += "#pragma rs java_package_name(";
-		Preamble += package;
+		Preamble += arg_package;
 		Preamble += ")\n";
 		Rewrite.InsertText(SM->getLocForStartOfFile(MainFileID), Preamble, true);
 
@@ -37,6 +41,35 @@ void CLTRSConsumer::Initialize(ASTContext &Ctx)
 																		    
  */
 }
+
+
+void CLTRSConsumer::HandleTranslationUnit(ASTContext &Context) {
+
+						  //llvm::errs()<<"handling translation unit \n";
+    if (RewriteBuffer const *RewriteBuf =
+				          Rewrite.getRewriteBufferFor(MainFileID)) {
+														    llvm::errs() << "Rewriting...\n";
+																		std::string output = std::string(RewriteBuf->begin(), RewriteBuf->end());
+                  std::stringstream outstream(output),finalOStream;
+																		char line[256];
+																		
+																		//final text replacement, pure string handle
+																		//FIXME:very ugly code
+																		while(!outstream.eof())
+																		{
+                  outstream.getline(line,256);
+																		
+																		finalOStream << Modifier->replaceStringAccordingToTable(line,MainTable)<< "\n";
+																		}
+																llvm::errs() << finalOStream.str();
+																}
+																
+								//pritn all type test
+/*								llvm::errs() << " In handleTranslationUnit dump\n";
+								for(ASTContext::type_iterator I = Context.types_begin(),E = Context.types_end();I != E; I++)
+										(*I)->dump();
+										*/
+						} 
 
 
 bool CLTRSConsumer::HandleTopLevelDecl(DeclGroupRef DG) 
@@ -73,7 +106,7 @@ virtual void HandleTranslationUnit(ASTContext &Context) {
 void CLTRSConsumer::HandleTopLevelSingleDecl(Decl *D)
 {
 		if (FunctionDecl *FD = dyn_cast<FunctionDecl>(D)) {
-				SWriter.handleFuncDefinition(FD);
+				SWriter->handleFuncDefinition(FD);
 		}
 
 

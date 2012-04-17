@@ -1,17 +1,27 @@
+#include "include/StringModifier.h"
 #include "include/ScriptWriter.h"
+#include "include/CLTRS.h"
 #include <sstream>
 #include "llvm/ADT/APInt.h"
 
-#include "Config.h"
 
 using namespace CLTRS;
+using namespace std;
+
+void ScriptWriter::initialize(CLTRSConsumer *consumer)
+{
+ CLTRS = consumer;                                                                                                                                                                                             
+	 Rewrite = CLTRS->getRewriter();
+		 Context = CLTRS->getASTContext();
+			 arg_to_root = CLTRS->getArgToRoot();
+}
 
 bool ScriptWriter::handleFuncDefinition(FunctionDecl *FD)
 {
 		if(FD->hasBody()) // check if not prototype 
 		{  
 
-				if(handleFunctionNameAndParameter(FD,TRANSFER_TO_ROOT))
+				if(handleFunctionNameAndParameter(FD,arg_to_root))
   //   if(true)
 						if(NamedDecl *ND = dyn_cast<NamedDecl>(FD))
 						{
@@ -49,7 +59,7 @@ bool ScriptWriter::handleFunctionNameAndParameter(FunctionDecl *FD,bool toRoot)
 				{
 						std::string symName = (*PI)->getName();
 						std::string symType = (*PI)->getTypeSourceInfo()->getType().getAsString();
-						symType = Modifier.replaceStringAccordingToTable(symType,MainTable);
+						symType = Modifier->replaceStringAccordingToTable(symType,MainTable);
 
 						newFunctionDecl << symType << " " << symName;
 
