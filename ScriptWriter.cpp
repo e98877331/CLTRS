@@ -115,16 +115,8 @@ Stmt *ScriptWriter::handleStmt(Stmt *ST)
 
 
 		llvm::errs() <<"stmt type:"<< ST->getStmtClassName() <<" stmt : "<< Rewrite->ConvertToString(ST) << "\n";
-
-
-		/*/ print ArraySubscriptExpr for test
-				if(ArraySubscriptExpr *ASE = dyn_cast<ArraySubscriptExpr>(ST))
-				{
-				llvm::errs() << " LHS: "<< TT(ASE->getLHS()) <<" RHS: "<<TT(ASE->getRHS()) << " BASE: "<< TT(ASE->getBase()) << " IDX: "<<TT(ASE->getIdx())<< "\n";
-				}
-			*/
-
-
+		
+		
 		for (Stmt::child_range CI = ST->children(); CI; ++CI)  
 				if(*CI)	{
 						//	llvm::errs() << "\ndumping stmt:----------------------------\n";
@@ -144,6 +136,9 @@ Stmt *ScriptWriter::handleStmt(Stmt *ST)
 
 		if(InitListExpr *ILE = dyn_cast<InitListExpr>(ST))
     return RewirteInitListExpr(ILE);
+
+		if(BinaryOperator *BO = dyn_cast<BinaryOperator>(ST))
+		  return RewriteBinaryOperator(BO);
 
 		llvm::errs()<<"<-----back level------\n";
 		return ST;
@@ -177,7 +172,7 @@ Stmt *ScriptWriter::RewriteCallExpr(CallExpr * CE)
 		if(!(CE->getDirectCallee()->getNameInfo().getAsString().compare("get_global_id")))
 		{
 				// distributeUnit.insert(std::make_pair(, symType)); 
-				IntegerLiteral *IL = new (Context) IntegerLiteral (*Context, llvm::APInt(32,7), CE->getType(), CE->getSourceRange().getBegin());
+				IntegerLiteral *IL = new (Context) IntegerLiteral (*Context, llvm::APInt(32,0), CE->getType(), CE->getSourceRange().getBegin());
 
 				//ParenExpr *PE = new (Context) ParenExpr(SourceLocation(), SourceLocation(),IL); 
 				Rewrite->ReplaceStmt(CE,IL);
@@ -195,6 +190,17 @@ Stmt *ScriptWriter::RewirteInitListExpr(InitListExpr *ILE)
 							ILE = new (Context) InitListExpr(*Context, ILE->getLBraceLoc() , ILE->getInits(), ILE->getNumInits(), ILE->getRBraceLoc());
 
 							return ILE;
+
+}
+
+Stmt *ScriptWriter::RewriteBinaryOperator(BinaryOperator *BO)
+{
+
+   if(ExtVectorElementExpr* EVEE = dyn_cast<ExtVectorElementExpr>(BO->getLHS()))
+			{
+			  BO->setLHS(EVEE->getBase());
+			}
+			return BO;
 
 }
 

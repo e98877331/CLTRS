@@ -69,6 +69,7 @@ Stmt *RewriteArraySubscript(ArraySubscriptExpr *ASE);
 Stmt *RewriteCallExpr(CallExpr * CE);
 
 Stmt *RewirteInitListExpr(InitListExpr *ILE);
+Stmt *RewriteBinaryOperator(BinaryOperator *BO);
 };
 
 
