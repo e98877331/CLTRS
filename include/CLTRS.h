@@ -61,7 +61,7 @@ namespace CLTRS {
 					inline Rewriter *getRewriter(){return &Rewrite;}
 					inline ASTContext *getASTContext(){return Context;}
 					inline bool getArgToRoot(){return arg_to_root;}
-
+     inline FileID getMainFileID(){return MainFileID;}
 
 					virtual void Initialize(ASTContext &Ctx); 
 					virtual bool HandleTopLevelDecl(DeclGroupRef DG);

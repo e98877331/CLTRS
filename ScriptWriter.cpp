@@ -10,10 +10,10 @@ using namespace std;
 
 void ScriptWriter::initialize(CLTRSConsumer *consumer)
 {
- CLTRS = consumer;                                                                                                                                                                                             
-	 Rewrite = CLTRS->getRewriter();
-		 Context = CLTRS->getASTContext();
-			 arg_to_root = CLTRS->getArgToRoot();
+		CLTRS = consumer;                                                                                                                                                                                             
+		Rewrite = CLTRS->getRewriter();
+		Context = CLTRS->getASTContext();
+		arg_to_root = CLTRS->getArgToRoot();
 }
 
 bool ScriptWriter::handleFuncDefinition(FunctionDecl *FD)
@@ -22,7 +22,7 @@ bool ScriptWriter::handleFuncDefinition(FunctionDecl *FD)
 		{  
 
 				if(handleFunctionNameAndParameter(FD,arg_to_root))
-  //   if(true)
+						//   if(true)
 						if(NamedDecl *ND = dyn_cast<NamedDecl>(FD))
 						{
 								//			FD->dump();
@@ -83,7 +83,7 @@ bool ScriptWriter::handleFunctionNameAndParameter(FunctionDecl *FD,bool toRoot)
 		}
 		else{ //end to end case
 
-		newFunctionDecl<<"void " << FD->getNameInfo().getAsString() << "( ";
+				newFunctionDecl<<"void " << FD->getNameInfo().getAsString() << "( ";
 				for(FunctionDecl::param_iterator PI =  FD->param_begin();PI != FD->param_end();PI++)
 				{
 						std::string symName = (*PI)->getName();
@@ -94,11 +94,11 @@ bool ScriptWriter::handleFunctionNameAndParameter(FunctionDecl *FD,bool toRoot)
 
 						if(PI != FD->param_end()-1)
 								newFunctionDecl << " , ";
-    }
+				}
 		}
 
 
-  newFunctionDecl << " )";
+		newFunctionDecl << " )";
 		SourceRange tempRange(sBegin,sEnd);
 		Rewrite->ReplaceText(tempRange,newFunctionDecl.str());
 
@@ -142,6 +142,9 @@ Stmt *ScriptWriter::handleStmt(Stmt *ST)
 		if(CallExpr *CE = dyn_cast<CallExpr>(ST))
 				return RewriteCallExpr(CE);
 
+		if(InitListExpr *ILE = dyn_cast<InitListExpr>(ST))
+    return RewirteInitListExpr(ILE);
+
 		llvm::errs()<<"<-----back level------\n";
 		return ST;
 
@@ -159,8 +162,9 @@ Stmt *ScriptWriter::RewriteArraySubscript(ArraySubscriptExpr *ASE)
 						VK_LValue, OK_Ordinary,                                                                                                                                              
 						PE->getSourceRange().getBegin());
 
+		//	ParenExpr *PE2 = new (Context) ParenExpr(SourceLocation(), SourceLocation(),UO); 
 		Rewrite->ReplaceStmt(ASE,UO);
-		return PE;
+		return UO;
 
 }
 
@@ -169,15 +173,66 @@ Stmt *ScriptWriter::RewriteCallExpr(CallExpr * CE)
 
 		//llvm::errs() << CE->getDirectCallee()->getNameInfo().getAsString() << " @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n"; 
 
+		waitRewriteCallExpr.push_back(CE);
 		if(!(CE->getDirectCallee()->getNameInfo().getAsString().compare("get_global_id")))
 		{
 				// distributeUnit.insert(std::make_pair(, symType)); 
-				IntegerLiteral *IL = new (Context) IntegerLiteral (*Context, llvm::APInt(32,0), CE->getType(), CE->getSourceRange().getBegin());
+				IntegerLiteral *IL = new (Context) IntegerLiteral (*Context, llvm::APInt(32,7), CE->getType(), CE->getSourceRange().getBegin());
+
+				//ParenExpr *PE = new (Context) ParenExpr(SourceLocation(), SourceLocation(),IL); 
 				Rewrite->ReplaceStmt(CE,IL);
 				Rewrite->InsertText(IL->getSourceRange().getEnd(),"/*this 0 is generate by replace get_global_id*/");
 
 				return IL;
 		}
 
-		return CE;
+		return 0;
 }
+
+//Rewrite InitListExpr to fix wrong pretty print by clang
+Stmt *ScriptWriter::RewirteInitListExpr(InitListExpr *ILE)
+{
+							ILE = new (Context) InitListExpr(*Context, ILE->getLBraceLoc() , ILE->getInits(), ILE->getNumInits(), ILE->getRBraceLoc());
+
+							return ILE;
+
+}
+
+void ScriptWriter::HandleTranslationUnit() 
+{
+
+		if (RewriteBuffer const *RewriteBuf =
+						Rewrite->getRewriteBufferFor(CLTRS->getMainFileID())) {
+				llvm::errs() << "Rewriting...\n";
+				std::string output = std::string(RewriteBuf->begin(), RewriteBuf->end());
+				std::stringstream outstream(output),finalOStream;
+				char line[256];
+
+				//final text replacement, pure string handle
+				//FIXME:very ugly code
+				while(!outstream.eof())
+				{
+						outstream.getline(line,256);
+
+						finalOStream << Modifier->replaceStringAccordingToTable(line,MainTable)<< "\n";
+				}
+				llvm::errs() << finalOStream.str();
+		}
+
+
+		for ( vector<CallExpr *>::iterator it=waitRewriteCallExpr.begin() ; it < waitRewriteCallExpr.end(); it++ )
+		{
+				llvm::errs() << Rewrite->ConvertToString(*it) <<"\n";
+
+		} 
+
+		
+					PrintingPolicy Policy = Context->getPrintingPolicy();
+					Policy.Dump = false;                                                                                                                                                                                      
+					Context->getTranslationUnitDecl()->print(llvm::errs(), Policy, 0,
+					true);//*/
+
+
+}
+
+

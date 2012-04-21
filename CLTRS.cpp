@@ -45,24 +45,8 @@ void CLTRSConsumer::Initialize(ASTContext &Ctx)
 
 void CLTRSConsumer::HandleTranslationUnit(ASTContext &Context) {
 
+    SWriter->HandleTranslationUnit();
 						  //llvm::errs()<<"handling translation unit \n";
-    if (RewriteBuffer const *RewriteBuf =
-				          Rewrite.getRewriteBufferFor(MainFileID)) {
-														    llvm::errs() << "Rewriting...\n";
-																		std::string output = std::string(RewriteBuf->begin(), RewriteBuf->end());
-                  std::stringstream outstream(output),finalOStream;
-																		char line[256];
-																		
-																		//final text replacement, pure string handle
-																		//FIXME:very ugly code
-																		while(!outstream.eof())
-																		{
-                  outstream.getline(line,256);
-																		
-																		finalOStream << Modifier->replaceStringAccordingToTable(line,MainTable)<< "\n";
-																		}
-																llvm::errs() << finalOStream.str();
-																}
 																
 								//pritn all type test
 /*								llvm::errs() << " In handleTranslationUnit dump\n";

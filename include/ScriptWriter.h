@@ -34,6 +34,8 @@ ASTContext *Context;
 CLTRSConsumer *CLTRS;
 
 std::map<std::string,std::string> distributeUnit;
+std::vector<CallExpr *> waitRewriteCallExpr;
+
 
 bool arg_to_root;
 
@@ -57,6 +59,7 @@ bool handleFuncDefinition(FunctionDecl *FD);
 bool handleFunctionNameAndParameter(FunctionDecl *FD,bool toRoot);
 
 
+void HandleTranslationUnit();
 Stmt *handleStmt(Stmt *ST);
 
 
@@ -65,6 +68,7 @@ Stmt *RewriteArraySubscript(ArraySubscriptExpr *ASE);
 
 Stmt *RewriteCallExpr(CallExpr * CE);
 
+Stmt *RewirteInitListExpr(InitListExpr *ILE);
 };
 
 
