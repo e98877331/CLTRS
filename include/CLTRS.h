@@ -29,7 +29,8 @@
 using namespace std;
 using namespace clang;
 //#include "PluginCLTRSAction.h"
-
+namespace clang
+{
 namespace CLTRS {
   class ScriptWriter;
 		class StringModifier;
@@ -80,5 +81,5 @@ namespace CLTRS {
 
 }
 
-
+}
 #endif

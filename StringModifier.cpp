@@ -1,11 +1,46 @@
 #include <sstream>
-
+#include <stdio.h>
 #include "llvm/Support/raw_ostream.h"
 
 #include "include/StringModifier.h"
 
-//using namespace std;
-using namespace CLTRS;
+using namespace std;
+using namespace clang;
+using namespace clang::CLTRS;
+
+//transfer special opencl function to renderscript
+bool StringModifier::getModifiedFunctionString(CallExpr *CE,string &out)
+{
+		char temp[100];
+		
+		for(unsigned int i = 0;i< sizeof(FunctionTranslateTable)/sizeof(CLTRSFunctionTable);i++)
+		{
+	   if(!(CE->getDirectCallee()->getNameInfo().getAsString().compare(FunctionTranslateTable[i].CLFunction)))
+				{
+	     CLTRSFunctionTable entry = FunctionTranslateTable[i];			  
+				  if(entry.args.length() == 1)
+						{ 
+      sprintf(temp,entry.RSForm.c_str(), toArg(entry.args[0],CE).c_str());
+						}
+						else if(FunctionTranslateTable[i].args.length() == 2)
+						{
+						sprintf(temp ,entry.RSForm.c_str() ,toArg(entry.args[0],CE).c_str() ,toArg(entry.args[1],CE).c_str());
+						}
+						else if(FunctionTranslateTable[i].args.length() == 3)
+						{
+      sprintf(temp,entry.RSForm.c_str(),toArg(entry.args[0],CE).c_str(),toArg(entry.args[1],CE).c_str(),toArg(entry.args[2],CE).c_str());
+						}
+      string o(temp);
+      out = o;
+           llvm::errs() << "!!!!!!!!!!!!!!!!!!!!  " <<temp<<"\n";
+						return true;
+				}
+				 
+		}
+//case of not HIT table entry
+return false;
+}
+
 
 CLTRSTable * StringModifier::getTableByTableType(TableType tt)
 {

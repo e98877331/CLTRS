@@ -19,7 +19,8 @@
 using namespace clang;
 using namespace CLTRS;
 
-
+namespace clang
+{
 namespace CLTRS
 {
 class StringModifier;
@@ -62,6 +63,7 @@ bool handleFunctionNameAndParameter(FunctionDecl *FD,bool toRoot);
 void HandleTranslationUnit();
 Stmt *handleStmt(Stmt *ST);
 
+void specialFinalFunctionCallHandle(CallExpr * CE);
 
 
 Stmt *RewriteArraySubscript(ArraySubscriptExpr *ASE);
@@ -76,7 +78,7 @@ Stmt *RewriteBinaryOperator(BinaryOperator *BO);
 
 }
 
-
+}
 
 #endif
 

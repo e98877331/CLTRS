@@ -3,12 +3,14 @@
 
 #include <string>
 using namespace std;
-
+namespace clang
+{
 namespace CLTRS
 {
 enum TableType
 {
- MainTable //var Decl table
+ MainTable, //var Decl table
+	FunctionTranlsateTable
 };
 
 typedef struct
@@ -17,6 +19,12 @@ string CLWord;
 string RSWord;
 } CLTRSTable;
 
+typedef struct
+{
+string CLFunction;
+string RSForm;
+string args;
+} CLTRSFunctionTable;
 
 static CLTRSTable TranslateTable[] = 
 {
@@ -27,5 +35,14 @@ static CLTRSTable TranslateTable[] =
 {"CLTRS_TB_END","CLTRS_TB_END"}
 };
 
+
+static CLTRSFunctionTable FunctionTranslateTable[] =
+{
+{"read_imagef","rsUnpackColor8888(*%s)","1"},
+{"write_imagef","*%s = rsPackColorTo8888(%s)","13"}
+};
+
+
+}
 }
 #endif

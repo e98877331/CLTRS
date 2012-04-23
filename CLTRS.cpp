@@ -2,7 +2,7 @@
 #include "include/CLTRS.h"
 #include "include/ScriptWriter.h"
 #include "include/StringModifier.h"
-using namespace CLTRS;
+using namespace clang::CLTRS;
 using namespace std;
 
 

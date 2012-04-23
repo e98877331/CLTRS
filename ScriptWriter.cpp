@@ -5,7 +5,7 @@
 #include "llvm/ADT/APInt.h"
 
 
-using namespace CLTRS;
+using namespace clang::CLTRS;
 using namespace std;
 
 void ScriptWriter::initialize(CLTRSConsumer *consumer)
@@ -204,8 +204,27 @@ Stmt *ScriptWriter::RewriteBinaryOperator(BinaryOperator *BO)
 
 }
 
+void ScriptWriter::specialFinalFunctionCallHandle(CallExpr * CE)
+{ 
+  string s;
+		bool b = Modifier->getModifiedFunctionString(CE,s);
+
+		if(b)
+		{
+		 llvm::errs() <<"heheheheh "<<s<<"\n";
+   Rewrite->ReplaceText(CE->getSourceRange(),s);
+		}
+}
+
 void ScriptWriter::HandleTranslationUnit() 
 {
+
+		for ( vector<CallExpr *>::iterator it=waitRewriteCallExpr.begin() ; it < waitRewriteCallExpr.end(); it++ )
+		{
+				llvm::errs() << Rewrite->ConvertToString(*it) <<"\n";
+    specialFinalFunctionCallHandle(*it);
+		}
+
 
 		if (RewriteBuffer const *RewriteBuf =
 						Rewrite->getRewriteBufferFor(CLTRS->getMainFileID())) {
@@ -226,17 +245,13 @@ void ScriptWriter::HandleTranslationUnit()
 		}
 
 
-		for ( vector<CallExpr *>::iterator it=waitRewriteCallExpr.begin() ; it < waitRewriteCallExpr.end(); it++ )
-		{
-				llvm::errs() << Rewrite->ConvertToString(*it) <<"\n";
-
-		} 
-
 		
 					PrintingPolicy Policy = Context->getPrintingPolicy();
 					Policy.Dump = false;                                                                                                                                                                                      
 					Context->getTranslationUnitDecl()->print(llvm::errs(), Policy, 0,
 					true);//*/
+
+
 
 
 }

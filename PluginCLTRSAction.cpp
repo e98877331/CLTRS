@@ -3,7 +3,7 @@
 
 //using namespace clang;
 using namespace CLTRS;
-
+namespace clang{
 namespace CLTRS{
 class CLTRSConsumer;
 class CLTRSAction : public PluginASTAction {
@@ -71,6 +71,6 @@ class CLTRSAction : public PluginASTAction {
 };
 
 }
-
+}//end of namespace clang
 static FrontendPluginRegistry::Add<CLTRSAction>
 X("CLTRS", "print function names");    
