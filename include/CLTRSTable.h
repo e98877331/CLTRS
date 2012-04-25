@@ -32,6 +32,7 @@ static CLTRSTable TranslateTable[] =
 {"__local",""},
 {"__constant",""},
 {"__private",""},
+{"image2d_t","uchar4 *"},
 {"CLTRS_TB_END","CLTRS_TB_END"}
 };
 

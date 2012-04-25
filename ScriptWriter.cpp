@@ -211,7 +211,7 @@ void ScriptWriter::specialFinalFunctionCallHandle(CallExpr * CE)
 
 		if(b)
 		{
-		 llvm::errs() <<"heheheheh "<<s<<"\n";
+	//	 llvm::errs() <<"heheheheh "<<s<<"\n";
    Rewrite->ReplaceText(CE->getSourceRange(),s);
 		}
 }

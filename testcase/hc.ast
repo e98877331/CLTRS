@@ -1,0 +1,81 @@
+typedef char *__builtin_va_list;
+typedef int int2 __attribute__((ext_vector_type(2)));
+typedef float float3 __attribute__((ext_vector_type(3)));
+typedef float float4 __attribute__((ext_vector_type(4)));
+typedef void *image2d_t;
+typedef void *sampler_t;
+float4 read_imagef(image2d_t image, sampler_t sampler, int2 coord);
+void write_imagef(image2d_t image, int2 coord, float4 color);
+float dot(float3, float3);
+int get_global_id(int index);
+void adder(image2d_t srcImg, image2d_t dstImg, sampler_t sampler, int width, int height) __attribute__((opencl_kernel_function)) (CompoundStmt 0xd31fdc0 <hc.cl:25:1, line:36:1>
+  (DeclStmt 0xd31f5e8 <line:26:1, col:53>
+    0xd302ae0 "float3 gMonoMult =
+      (ImplicitCastExpr 0xd31f5d8 <col:20, col:27> 'float3':'float  __attribute__((ext_vector_type(3)))' <LValueToRValue>
+        (CompoundLiteralExpr 0xd31f5c0 <col:20, col:27> 'float3':'float  __attribute__((ext_vector_type(3)))' lvalue
+          (InitListExpr 0xd302bc0 <col:20, col:27> 'float3':'float  __attribute__((ext_vector_type(3)))'
+            (FloatingLiteral 0xd302b10 <col:30> 'float' 2.990000e-01)
+            (FloatingLiteral 0xd302b28 <col:38> 'float' 5.870000e-01)
+            (FloatingLiteral 0xd302b40 <col:46> 'float' 1.140000e-01))))")
+  (DeclStmt 0xd31f8a0 <line:28:1, col:85>
+    0xd31f600 "float4 f4 =
+      (CallExpr 0xd31f848 <col:13, col:84> 'float4':'float  __attribute__((ext_vector_type(4)))'
+        (ImplicitCastExpr 0xd31f838 <col:13> 'float4 (*)(image2d_t, sampler_t, int2)' <FunctionToPointerDecay>
+          (DeclRefExpr 0xd31f630 <col:13> 'float4 (image2d_t, sampler_t, int2)' Function 0xd3023c0 'read_imagef' 'float4 (image2d_t, sampler_t, int2)'))
+        (ImplicitCastExpr 0xd31f870 <col:25> 'image2d_t':'void *' <LValueToRValue>
+          (DeclRefExpr 0xd31f648 <col:25> 'image2d_t':'void *' lvalue ParmVar 0xd302850 'srcImg' 'image2d_t':'void *'))
+        (ImplicitCastExpr 0xd31f880 <col:33> 'sampler_t':'void *' <LValueToRValue>
+          (DeclRefExpr 0xd31f660 <col:33> 'sampler_t':'void *' lvalue ParmVar 0xd3028e0 'sampler' 'sampler_t':'void *'))
+        (ImplicitCastExpr 0xd31f890 <col:42, col:47> 'int2':'int  __attribute__((ext_vector_type(2)))' <LValueToRValue>
+          (CompoundLiteralExpr 0xd31f7e0 <col:42, col:47> 'int2':'int  __attribute__((ext_vector_type(2)))' lvalue
+            (InitListExpr 0xd31f7b0 <col:42, col:47> 'int2':'int  __attribute__((ext_vector_type(2)))'
+              (CallExpr 0xd31f6d8 <col:49, col:64> 'int'
+                (ImplicitCastExpr 0xd31f6c8 <col:49> 'int (*)(int)' <FunctionToPointerDecay>
+                  (DeclRefExpr 0xd31f678 <col:49> 'int (int)' Function 0xd3027c0 'get_global_id' 'int (int)'))
+                (IntegerLiteral 0xd31f690 <col:63> 'int' 0))
+              (CallExpr 0xd31f738 <col:67, col:82> 'int'
+                (ImplicitCastExpr 0xd31f728 <col:67> 'int (*)(int)' <FunctionToPointerDecay>
+                  (DeclRefExpr 0xd31f6f8 <col:67> 'int (int)' Function 0xd3027c0 'get_global_id' 'int (int)'))
+                (IntegerLiteral 0xd31f710 <col:81> 'int' 1))))))")
+  (DeclStmt 0xd31fa18 <line:30:1, col:47>
+    0xd31f8c0 "float4 Mono =
+      (ImplicitCastExpr 0xd31fa08 <col:15, col:22> 'float4':'float  __attribute__((ext_vector_type(4)))' <LValueToRValue>
+        (CompoundLiteralExpr 0xd31f9f0 <col:15, col:22> 'float4':'float  __attribute__((ext_vector_type(4)))' lvalue
+          (InitListExpr 0xd31f9b8 <col:15, col:22> 'float4':'float  __attribute__((ext_vector_type(4)))'
+            (FloatingLiteral 0xd31f8f0 <col:24> 'float' 0.000000e+00)
+            (FloatingLiteral 0xd31f908 <col:30> 'float' 0.000000e+00)
+            (FloatingLiteral 0xd31f920 <col:36> 'float' 0.000000e+00)
+            (FloatingLiteral 0xd31f938 <col:42> 'float' 0.000000e+00))))")
+  (BinaryOperator 0xd31fb60 <line:32:1, col:32> 'float3':'float  __attribute__((ext_vector_type(3)))' '='
+    (ExtVectorElementExpr 0xd31fa40 <col:1, col:6> 'float3':'float  __attribute__((ext_vector_type(3)))' lvalue vectorcomponent xyz
+      (DeclRefExpr 0xd31fa28 <col:1> 'float4':'float  __attribute__((ext_vector_type(4)))' lvalue Var 0xd31f8c0 'Mono' 'float4':'float  __attribute__((ext_vector_type(4)))'))
+    (ImplicitCastExpr 0xd31fb50 <col:12, col:32> 'float3':'float  __attribute__((ext_vector_type(3)))' <VectorSplat>
+      (CallExpr 0xd31fb08 <col:12, col:32> 'float'
+        (ImplicitCastExpr 0xd31faf8 <col:12> 'float (*)(float3, float3)' <FunctionToPointerDecay>
+          (DeclRefExpr 0xd31fa54 <col:12> 'float (float3, float3)' Function 0xd3026d0 'dot' 'float (float3, float3)'))
+        (ImplicitCastExpr 0xd31fb30 <col:16, col:19> 'float3':'float  __attribute__((ext_vector_type(3)))' <LValueToRValue>
+          (ExtVectorElementExpr 0xd31fa88 <col:16, col:19> 'float3':'float  __attribute__((ext_vector_type(3)))' lvalue vectorcomponent xyz
+            (DeclRefExpr 0xd31fa6c <col:16> 'float4':'float  __attribute__((ext_vector_type(4)))' lvalue Var 0xd31f600 'f4' 'float4':'float  __attribute__((ext_vector_type(4)))')))
+        (ImplicitCastExpr 0xd31fb40 <col:23> 'float3':'float  __attribute__((ext_vector_type(3)))' <LValueToRValue>
+          (DeclRefExpr 0xd31fa9c <col:23> 'float3':'float  __attribute__((ext_vector_type(3)))' lvalue Var 0xd302ae0 'gMonoMult' 'float3':'float  __attribute__((ext_vector_type(3)))')))))
+  (CallExpr 0xd31fd68 <line:34:1, col:70> 'void'
+    (ImplicitCastExpr 0xd31fd58 <col:1> 'void (*)(image2d_t, int2, float4)' <FunctionToPointerDecay>
+      (DeclRefExpr 0xd31fb78 <col:1> 'void (image2d_t, int2, float4)' Function 0xd302570 'write_imagef' 'void (image2d_t, int2, float4)'))
+    (ImplicitCastExpr 0xd31fd90 <col:14> 'image2d_t':'void *' <LValueToRValue>
+      (DeclRefExpr 0xd31fb90 <col:14> 'image2d_t':'void *' lvalue ParmVar 0xd3028a0 'dstImg' 'image2d_t':'void *'))
+    (ImplicitCastExpr 0xd31fda0 <col:22, col:27> 'int2':'int  __attribute__((ext_vector_type(2)))' <LValueToRValue>
+      (CompoundLiteralExpr 0xd31fcf0 <col:22, col:27> 'int2':'int  __attribute__((ext_vector_type(2)))' lvalue
+        (InitListExpr 0xd31fcc0 <col:22, col:27> 'int2':'int  __attribute__((ext_vector_type(2)))'
+          (CallExpr 0xd31fbe8 <col:29, col:44> 'int'
+            (ImplicitCastExpr 0xd31fbd8 <col:29> 'int (*)(int)' <FunctionToPointerDecay>
+              (DeclRefExpr 0xd31fba8 <col:29> 'int (int)' Function 0xd3027c0 'get_global_id' 'int (int)'))
+            (IntegerLiteral 0xd31fbc0 <col:43> 'int' 0))
+          (CallExpr 0xd31fc48 <col:47, col:62> 'int'
+            (ImplicitCastExpr 0xd31fc38 <col:47> 'int (*)(int)' <FunctionToPointerDecay>
+              (DeclRefExpr 0xd31fc08 <col:47> 'int (int)' Function 0xd3027c0 'get_global_id' 'int (int)'))
+            (IntegerLiteral 0xd31fc20 <col:61> 'int' 1)))))
+    (ImplicitCastExpr 0xd31fdb0 <col:66> 'float4':'float  __attribute__((ext_vector_type(4)))' <LValueToRValue>
+      (DeclRefExpr 0xd31fd04 <col:66> 'float4':'float  __attribute__((ext_vector_type(4)))' lvalue Var 0xd31f8c0 'Mono' 'float4':'float  __attribute__((ext_vector_type(4)))'))))
+
+
+@
