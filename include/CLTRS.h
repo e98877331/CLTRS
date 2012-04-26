@@ -61,6 +61,7 @@ namespace CLTRS {
      
 					inline Rewriter *getRewriter(){return &Rewrite;}
 					inline ASTContext *getASTContext(){return Context;}
+					inline string getArgPackage(){return arg_package;}
 					inline bool getArgToRoot(){return arg_to_root;}
      inline FileID getMainFileID(){return MainFileID;}
 

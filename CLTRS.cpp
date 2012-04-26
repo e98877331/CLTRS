@@ -24,12 +24,6 @@ void CLTRSConsumer::Initialize(ASTContext &Ctx)
   //SWriter.setRewriter(&Rewrite);
 		//SWriter.setContext(Context);
 
-		std::string Preamble;
-		Preamble += "#pragma version(1)\n";
-		Preamble += "#pragma rs java_package_name(";
-		Preamble += arg_package;
-		Preamble += ")\n";
-		Rewrite.InsertText(SM->getLocForStartOfFile(MainFileID), Preamble, true);
 
 
 /*

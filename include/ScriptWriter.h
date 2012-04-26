@@ -35,10 +35,15 @@ ASTContext *Context;
 CLTRSConsumer *CLTRS;
 
 std::map<std::string,std::string> distributeUnit;
+//record all function call nodes for final handle
 std::vector<CallExpr *> waitRewriteCallExpr;
 
+//record function location for final print out
+std::vector<FunctionDecl *> functionToRewrite;
 
+string arg_package;
 bool arg_to_root;
+
 
 public:
 ScriptWriter(){}
@@ -53,6 +58,9 @@ inline void setContext(ASTContext *C)
 inline void setArgToRoot(bool b)
 {arg_to_root = b;}
 */
+
+void printScript(llvm::raw_ostream &out,FunctionDecl * fn);
+
 void initialize(CLTRSConsumer *consumer);
 
 

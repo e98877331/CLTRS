@@ -13,13 +13,18 @@ void ScriptWriter::initialize(CLTRSConsumer *consumer)
 		CLTRS = consumer;                                                                                                                                                                                             
 		Rewrite = CLTRS->getRewriter();
 		Context = CLTRS->getASTContext();
+		arg_package = CLTRS->getArgPackage();
 		arg_to_root = CLTRS->getArgToRoot();
+
+
 }
 
 bool ScriptWriter::handleFuncDefinition(FunctionDecl *FD)
 {
 		if(FD->hasBody()) // check if not prototype 
 		{  
+
+				functionToRewrite.push_back(FD); 
 
 				if(handleFunctionNameAndParameter(FD,arg_to_root))
 						//   if(true)
@@ -54,31 +59,29 @@ bool ScriptWriter::handleFunctionNameAndParameter(FunctionDecl *FD,bool toRoot)
 
 		if(toRoot)
 		{
-				newFunctionDecl<<"void root( ";
-				for(FunctionDecl::param_iterator PI =  FD->param_begin();PI != FD->param_end();PI++)
+				//case of Parameter number > 2
+				if((int)(FD->getNumParams()) >2)
 				{
-						std::string symName = (*PI)->getName();
-						std::string symType = (*PI)->getTypeSourceInfo()->getType().getAsString();
-						symType = Modifier->replaceStringAccordingToTable(symType,MainTable);
 
+						newFunctionDecl<<"void root( const CLTRSin * CLTRSinput ,";
+						ParmVarDecl * PI = FD->getParamDecl(FD->getNumParams()-(unsigned int)1);
+						std::string symName = PI->getName();
+						std::string symType = PI->getTypeSourceInfo()->getType().getAsString();
 						newFunctionDecl << symType << " " << symName;
-
-						if(PI != FD->param_end()-1)
-								newFunctionDecl << " , ";
-
-						/*if((*PI)->getTypeSourceInfo()->getType().getTypePtr()->getPointeeType().isConstQualified())
-								{ 
-
-								llvm::errs() << "akl;jg;lakjgkl;djgl;kasdjgl;aksdjgkl;asdjgkl;asdjgkl;jkljdkgjkj,mcv./,jmkojsfjkl;jkjk\n";
-								symType = "const";
-								}
-								else
-								llvm::errs() << "no const find\n";
-							*/
-
-
-						//								llvm::errs() << symName << "," << symType << "\n";
 				}
+				else //case of Parameter number <= 2 
+				{
+						newFunctionDecl<<"void root( ";
+						for(FunctionDecl::param_iterator PI = FD->param_begin();PI != FD->param_end();PI++)
+						{
+								std::string symName = (*PI)->getName();
+								std::string symType = (*PI)->getTypeSourceInfo()->getType().getAsString();
+								newFunctionDecl <<symType <<" "<< symName;
+								if(PI != FD->param_end()-1)
+										newFunctionDecl << " , ";
+						}
+				}
+
 
 		}
 		else{ //end to end case
@@ -115,8 +118,8 @@ Stmt *ScriptWriter::handleStmt(Stmt *ST)
 
 
 		llvm::errs() <<"stmt type:"<< ST->getStmtClassName() <<" stmt : "<< Rewrite->ConvertToString(ST) << "\n";
-		
-		
+
+
 		for (Stmt::child_range CI = ST->children(); CI; ++CI)  
 				if(*CI)	{
 						//	llvm::errs() << "\ndumping stmt:----------------------------\n";
@@ -135,10 +138,10 @@ Stmt *ScriptWriter::handleStmt(Stmt *ST)
 				return RewriteCallExpr(CE);
 
 		if(InitListExpr *ILE = dyn_cast<InitListExpr>(ST))
-    return RewirteInitListExpr(ILE);
+				return RewirteInitListExpr(ILE);
 
 		if(BinaryOperator *BO = dyn_cast<BinaryOperator>(ST))
-		  return RewriteBinaryOperator(BO);
+				return RewriteBinaryOperator(BO);
 
 		llvm::errs()<<"<-----back level------\n";
 		return ST;
@@ -187,33 +190,83 @@ Stmt *ScriptWriter::RewriteCallExpr(CallExpr * CE)
 //Rewrite InitListExpr to fix wrong pretty print by clang
 Stmt *ScriptWriter::RewirteInitListExpr(InitListExpr *ILE)
 {
-							ILE = new (Context) InitListExpr(*Context, ILE->getLBraceLoc() , ILE->getInits(), ILE->getNumInits(), ILE->getRBraceLoc());
+		ILE = new (Context) InitListExpr(*Context, ILE->getLBraceLoc() , ILE->getInits(), ILE->getNumInits(), ILE->getRBraceLoc());
 
-							return ILE;
+		return ILE;
 
 }
 
 Stmt *ScriptWriter::RewriteBinaryOperator(BinaryOperator *BO)
 {
 
-   if(ExtVectorElementExpr* EVEE = dyn_cast<ExtVectorElementExpr>(BO->getLHS()))
-			{
-			  BO->setLHS(EVEE->getBase());
-			}
-			return BO;
+		if(ExtVectorElementExpr* EVEE = dyn_cast<ExtVectorElementExpr>(BO->getLHS()))
+		{
+				BO->setLHS(EVEE->getBase());
+				Rewrite->ReplaceStmt(BO->getLHS(),EVEE->getBase());
+		}
+		return BO;
 
 }
 
 void ScriptWriter::specialFinalFunctionCallHandle(CallExpr * CE)
 { 
-  string s;
+		string s;
 		bool b = Modifier->getModifiedFunctionString(CE,s);
 
 		if(b)
 		{
-	//	 llvm::errs() <<"heheheheh "<<s<<"\n";
-   Rewrite->ReplaceText(CE->getSourceRange(),s);
+				//	 llvm::errs() <<"heheheheh "<<s<<"\n";
+				Rewrite->ReplaceText(CE->getSourceRange(),s);
 		}
+}
+
+void ScriptWriter::printScript(llvm::raw_ostream &out,FunctionDecl *fn)
+{
+		if (Rewrite->getRewriteBufferFor(CLTRS->getMainFileID())) {
+				llvm::errs() << "Rewriting...\n";
+				std::string output = Rewrite->getRewrittenText(fn->getSourceRange()); //std::string(RewriteBuf->begin(), RewriteBuf->end());
+				std::stringstream outstream,finalOStream;
+				char line[256];
+
+				//final text replacement, pure string handle
+				//FIXME:very ugly code
+
+
+				std::string Preamble;
+				Preamble += "#pragma version(1)\n";
+				Preamble += "#pragma rs java_package_name(";
+				Preamble += arg_package;
+				Preamble += ")\n\n";
+				//	Rewrite.InsertText(SM->getLocForStartOfFile(MainFileID), Preamble, true);
+				finalOStream <<Preamble;
+
+				if(arg_to_root && (fn->getNumParams() > 2))
+				{
+						string CLTRSinput;
+						CLTRSinput += "typedef struct CLTRSin {\n";
+						for(int i = 0;i<(int)fn->getNumParams()-1;i++)
+						{
+								CLTRSinput += fn->getParamDecl(i)->getType().getAsString();
+								CLTRSinput += " ";
+								CLTRSinput += fn->getParamDecl(i)->getNameAsString();
+								CLTRSinput +=";\n";
+						}
+						CLTRSinput += "} CLTRSin:\n\n";
+
+						outstream << CLTRSinput;
+				}
+
+				outstream << output;
+				while(!outstream.eof())
+				{
+						outstream.getline(line,256);
+
+						finalOStream << Modifier->replaceStringAccordingToTable(line,MainTable)<< "\n";
+				}
+				llvm::errs() << finalOStream.str()<<"\n\n";
+		}
+
+
 }
 
 void ScriptWriter::HandleTranslationUnit() 
@@ -222,34 +275,20 @@ void ScriptWriter::HandleTranslationUnit()
 		for ( vector<CallExpr *>::iterator it=waitRewriteCallExpr.begin() ; it < waitRewriteCallExpr.end(); it++ )
 		{
 				llvm::errs() << Rewrite->ConvertToString(*it) <<"\n";
-    specialFinalFunctionCallHandle(*it);
+				specialFinalFunctionCallHandle(*it);
 		}
 
-
-		if (RewriteBuffer const *RewriteBuf =
-						Rewrite->getRewriteBufferFor(CLTRS->getMainFileID())) {
-				llvm::errs() << "Rewriting...\n";
-				std::string output = std::string(RewriteBuf->begin(), RewriteBuf->end());
-				std::stringstream outstream(output),finalOStream;
-				char line[256];
-
-				//final text replacement, pure string handle
-				//FIXME:very ugly code
-				while(!outstream.eof())
-				{
-						outstream.getline(line,256);
-
-						finalOStream << Modifier->replaceStringAccordingToTable(line,MainTable)<< "\n";
-				}
-				llvm::errs() << finalOStream.str();
-		}
+		for (vector<FunctionDecl *>::iterator it = functionToRewrite.begin() ; it < functionToRewrite.end(); it++)
+				printScript(llvm::errs(),*it);
 
 
-		
+
+
+		/*	
 					PrintingPolicy Policy = Context->getPrintingPolicy();
 					Policy.Dump = false;                                                                                                                                                                                      
 					Context->getTranslationUnitDecl()->print(llvm::errs(), Policy, 0,
-					true);//*/
+					true);// */
 
 
 
