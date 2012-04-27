@@ -55,7 +55,8 @@ namespace CLTRS {
 						bool arg_to_root;
 
 				public:
-				 void setPackage(string s){arg_package = s;}
+				 
+					void setPackage(string s){arg_package = s;}
 					void setToRoot(bool b){arg_to_root = b;}
 					
      

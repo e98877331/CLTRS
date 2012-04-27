@@ -19,6 +19,11 @@ void ScriptWriter::initialize(CLTRSConsumer *consumer)
 
 }
 
+void ScriptWriter::recordGlobalDecl(Decl *D)
+{
+ globalDecl.push_back(D);
+}
+
 bool ScriptWriter::handleFuncDefinition(FunctionDecl *FD)
 {
 		if(FD->hasBody()) // check if not prototype 
@@ -200,9 +205,10 @@ Stmt *ScriptWriter::RewriteBinaryOperator(BinaryOperator *BO)
 {
 
 		if(ExtVectorElementExpr* EVEE = dyn_cast<ExtVectorElementExpr>(BO->getLHS()))
-		{
+		{ 
+		  Stmt * old = BO->getLHS();
 				BO->setLHS(EVEE->getBase());
-				Rewrite->ReplaceStmt(BO->getLHS(),EVEE->getBase());
+				Rewrite->ReplaceStmt(old,EVEE->getBase());
 		}
 		return BO;
 
@@ -220,7 +226,7 @@ void ScriptWriter::specialFinalFunctionCallHandle(CallExpr * CE)
 		}
 }
 
-void ScriptWriter::printScript(llvm::raw_ostream &out,FunctionDecl *fn)
+void ScriptWriter::printScript(llvm::raw_ostream &out,FunctionDecl *fn,string globalDecls)
 {
 		if (Rewrite->getRewriteBufferFor(CLTRS->getMainFileID())) {
 				llvm::errs() << "Rewriting...\n";
@@ -239,6 +245,8 @@ void ScriptWriter::printScript(llvm::raw_ostream &out,FunctionDecl *fn)
 				Preamble += ")\n\n";
 				//	Rewrite.InsertText(SM->getLocForStartOfFile(MainFileID), Preamble, true);
 				finalOStream <<Preamble;
+
+				finalOStream <<globalDecls;
 
 				if(arg_to_root && (fn->getNumParams() > 2))
 				{
@@ -271,20 +279,33 @@ void ScriptWriter::printScript(llvm::raw_ostream &out,FunctionDecl *fn)
 
 void ScriptWriter::HandleTranslationUnit() 
 {
-
+  //generate global decl string
+		SourceManager * SM = &Context->getSourceManager();
+		  std::string gd;
+				llvm::raw_string_ostream GS(gd);
+		for (vector<Decl *>::iterator it = globalDecl.begin(); it<globalDecl.end();++it)
+		{
+		  if(SM->getFileID((*it)->getLocation()) != SM->getMainFileID())
+    continue;
+		  (*it)->print(GS);
+				GS<<"\n";
+		}
+  GS<<"\n";
+  //handle special function translate
 		for ( vector<CallExpr *>::iterator it=waitRewriteCallExpr.begin() ; it < waitRewriteCallExpr.end(); it++ )
 		{
 				llvm::errs() << Rewrite->ConvertToString(*it) <<"\n";
 				specialFinalFunctionCallHandle(*it);
 		}
 
+  //output one script per function 
 		for (vector<FunctionDecl *>::iterator it = functionToRewrite.begin() ; it < functionToRewrite.end(); it++)
-				printScript(llvm::errs(),*it);
+				printScript(llvm::errs(),*it,GS.str());
 
+  //FIXME case of output all function once
 
-
-
-		/*	
+/*
+			
 					PrintingPolicy Policy = Context->getPrintingPolicy();
 					Policy.Dump = false;                                                                                                                                                                                      
 					Context->getTranslationUnitDecl()->print(llvm::errs(), Policy, 0,

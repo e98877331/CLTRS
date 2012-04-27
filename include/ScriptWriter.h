@@ -41,6 +41,8 @@ std::vector<CallExpr *> waitRewriteCallExpr;
 //record function location for final print out
 std::vector<FunctionDecl *> functionToRewrite;
 
+std::vector<Decl *> globalDecl;
+
 string arg_package;
 bool arg_to_root;
 
@@ -59,10 +61,11 @@ inline void setArgToRoot(bool b)
 {arg_to_root = b;}
 */
 
-void printScript(llvm::raw_ostream &out,FunctionDecl * fn);
+void printScript(llvm::raw_ostream &out,FunctionDecl * fn,std::string globalDecls);
 
 void initialize(CLTRSConsumer *consumer);
 
+void recordGlobalDecl(Decl * D);
 
 bool handleFuncDefinition(FunctionDecl *FD);
 bool handleFunctionNameAndParameter(FunctionDecl *FD,bool toRoot);

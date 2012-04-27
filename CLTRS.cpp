@@ -86,6 +86,11 @@ void CLTRSConsumer::HandleTopLevelSingleDecl(Decl *D)
 		if (FunctionDecl *FD = dyn_cast<FunctionDecl>(D)) {
 				SWriter->handleFuncDefinition(FD);
 		}
+		else
+		{
+    SWriter->recordGlobalDecl(D);
+
+		}
 
 
 }
