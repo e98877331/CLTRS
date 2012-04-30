@@ -32,7 +32,6 @@ bool StringModifier::getModifiedFunctionString(CallExpr *CE,string &out)
 						}
       string o(temp);
       out = o;
-           llvm::errs() << "!!!!!!!!!!!!!!!!!!!!  " <<temp<<"\n";
 						return true;
 				}
 				 

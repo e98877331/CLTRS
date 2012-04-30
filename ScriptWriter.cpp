@@ -48,7 +48,7 @@ bool ScriptWriter::handleFuncDefinition(FunctionDecl *FD)
 						}
 		}
 
-
+  
 		return true;
 }
 
@@ -61,6 +61,14 @@ bool ScriptWriter::handleFunctionNameAndParameter(FunctionDecl *FD,bool toRoot)
 		//sBegin.dump(Rewrite.getSourceMgr());
 		//sEnd.dump(Rewrite.getSourceMgr());
 		stringstream newFunctionDecl;
+
+  
+		//register params to table
+		for(FunctionDecl::param_iterator PI = FD->param_begin();PI != FD->param_end();PI++)
+		{
+		  paramTable.add(*PI);
+		}
+
 
 		if(toRoot)
 		{
@@ -148,6 +156,9 @@ Stmt *ScriptWriter::handleStmt(Stmt *ST)
 		if(BinaryOperator *BO = dyn_cast<BinaryOperator>(ST))
 				return RewriteBinaryOperator(BO);
 
+		if(DeclRefExpr *DRE = dyn_cast<DeclRefExpr>(ST))
+		  return RewriteDeclRefExpr(DRE);
+
 		llvm::errs()<<"<-----back level------\n";
 		return ST;
 
@@ -157,6 +168,11 @@ Stmt *ScriptWriter::RewriteArraySubscript(ArraySubscriptExpr *ASE)
 {
 		llvm::errs() << " LHS: "<< TT(ASE->getLHS()) <<" RHS: "<<TT(ASE->getRHS()) << " BASE: "<< TT(ASE->getBase()) << " IDX: "<<TT(ASE->getIdx())<< "\n";
 
+
+  if(paramTable.find(Rewrite->ConvertToString(ASE->getLHS()))&&CLTRS->getArgToRoot())
+		{
+   AStoRewrite.push_back(ASE);
+		}
 
 
 		Expr *Exp = new (Context) BinaryOperator (ASE->getLHS(), ASE->getRHS(), BO_Add, ASE->getType(), ASE->getValueKind(), OK_Ordinary, ASE->getSourceRange().getBegin());
@@ -213,6 +229,15 @@ Stmt *ScriptWriter::RewriteBinaryOperator(BinaryOperator *BO)
 		return BO;
 
 }
+
+Stmt *ScriptWriter::RewriteDeclRefExpr(DeclRefExpr *DRE)
+{
+  if(paramTable.find(DRE->getFoundDecl()->getNameAsString()) && CLTRS->getArgToRoot())
+		 DREtoRewrite.push_back(DRE);
+
+ return DRE;
+}
+
 
 void ScriptWriter::specialFinalFunctionCallHandle(CallExpr * CE)
 { 
@@ -279,8 +304,33 @@ void ScriptWriter::printScript(llvm::raw_ostream &out,FunctionDecl *fn,string gl
 
 void ScriptWriter::HandleTranslationUnit() 
 {
-  //generate global decl string
 		SourceManager * SM = &Context->getSourceManager();
+
+   llvm::errs()<<"Print debug information:\n";
+
+  for(vector<ArraySubscriptExpr *>::iterator it = AStoRewrite.begin(); it<AStoRewrite.end();++it)
+		{
+    llvm::errs()<<Rewrite->ConvertToString(*it)<<":";
+				(*it)->getExprLoc().print(llvm::errs(),*SM);
+    llvm::errs()<<"\n";
+
+
+
+		}
+		llvm::errs()<<"\n";
+  for(vector<DeclRefExpr *>::iterator it = DREtoRewrite.begin(); it<DREtoRewrite.end();++it)
+		{
+    llvm::errs()<<Rewrite->ConvertToString(*it)<<" ";
+				(*it)->getExprLoc().print(llvm::errs(),*SM);
+    llvm::errs()<<"\n";
+				
+			// string ts = "CLTRSin." + (*it)->getFoundDecl()->getNameAsString();
+			//	Rewrite->ReplaceText((*it)->getSourceRange(),ts);
+		}
+		llvm::errs()<<"\n";
+
+
+  //generate global decl string
 		  std::string gd;
 				llvm::raw_string_ostream GS(gd);
 		for (vector<Decl *>::iterator it = globalDecl.begin(); it<globalDecl.end();++it)

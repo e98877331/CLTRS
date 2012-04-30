@@ -37,11 +37,41 @@ CLTRSConsumer *CLTRS;
 std::map<std::string,std::string> distributeUnit;
 //record all function call nodes for final handle
 std::vector<CallExpr *> waitRewriteCallExpr;
-
 //record function location for final print out
 std::vector<FunctionDecl *> functionToRewrite;
-
 std::vector<Decl *> globalDecl;
+
+//use when arg_to_root = true
+std::vector<ArraySubscriptExpr *> AStoRewrite;
+std::vector<DeclRefExpr *> DREtoRewrite;
+
+class ParamTable
+{
+private:
+std::vector<string> params;
+public:
+
+void add(ParmVarDecl * PVD)
+{params.push_back(PVD->getNameAsString());}
+void clear()
+{params.clear();}
+
+bool find(string s)
+{
+  for(std::vector<string>::iterator it = params.begin();it < params.end();++it)
+		{
+		 if(*it == s)
+			 return true;
+		}
+    return false;
+}
+};
+
+ParamTable paramTable;
+
+
+
+
 
 string arg_package;
 bool arg_to_root;
@@ -83,6 +113,7 @@ Stmt *RewriteCallExpr(CallExpr * CE);
 
 Stmt *RewirteInitListExpr(InitListExpr *ILE);
 Stmt *RewriteBinaryOperator(BinaryOperator *BO);
+Stmt *RewriteDeclRefExpr(DeclRefExpr *DRE);
 };
 
 
