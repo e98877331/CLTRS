@@ -34,11 +34,11 @@ ASTContext *Context;
 
 CLTRSConsumer *CLTRS;
 
-std::map<std::string,std::string> distributeUnit;
+//std::map<std::string,std::string> distributeUnit;
 //record all function call nodes for final handle
 std::vector<CallExpr *> waitRewriteCallExpr;
 //record function location for final print out
-std::vector<FunctionDecl *> functionToRewrite;
+//std::vector<FunctionDecl *> functionToRewrite;
 std::vector<Decl *> globalDecl;
 
 //use when arg_to_root = true
@@ -90,6 +90,16 @@ inline void setContext(ASTContext *C)
 inline void setArgToRoot(bool b)
 {arg_to_root = b;}
 */
+void clearMaps()
+{
+paramTable.clear();
+//distributeUnit.clear();
+waitRewriteCallExpr.clear();
+//functionToRewrite.clear();
+globalDecl.clear();
+AStoRewrite.clear();
+DREtoRewrite.clear();
+}
 
 void printScript(llvm::raw_ostream &out,FunctionDecl * fn,std::string globalDecls);
 

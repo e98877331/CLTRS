@@ -29,7 +29,7 @@ bool ScriptWriter::handleFuncDefinition(FunctionDecl *FD)
 		if(FD->hasBody()) // check if not prototype 
 		{  
 
-				functionToRewrite.push_back(FD); 
+				//functionToRewrite.push_back(FD); 
 
 				if(handleFunctionNameAndParameter(FD,arg_to_root))
 						//   if(true)
@@ -48,7 +48,30 @@ bool ScriptWriter::handleFuncDefinition(FunctionDecl *FD)
 						}
 		}
 
+
+  //generate global decl string
+		SourceManager * SM = &Context->getSourceManager();
+		  std::string gd;
+				llvm::raw_string_ostream GS(gd);
+		for (vector<Decl *>::iterator it = globalDecl.begin(); it<globalDecl.end();++it)
+		{
+		  if(SM->getFileID((*it)->getLocation()) != SM->getMainFileID())
+    continue;
+		  (*it)->print(GS);
+				GS<<"\n";
+		}
+  GS<<"\n";
+  //handle special function translate
+		for ( vector<CallExpr *>::iterator it=waitRewriteCallExpr.begin() ; it < waitRewriteCallExpr.end(); it++ )
+		{
+				llvm::errs() << Rewrite->ConvertToString(*it) <<"\n";
+				specialFinalFunctionCallHandle(*it);
+		}
+				printScript(llvm::errs(),FD,GS.str());
   
+		
+		clearMaps();
+		
 		return true;
 }
 
@@ -66,8 +89,10 @@ bool ScriptWriter::handleFunctionNameAndParameter(FunctionDecl *FD,bool toRoot)
 		//register params to table
 		for(FunctionDecl::param_iterator PI = FD->param_begin();PI != FD->param_end();PI++)
 		{
+		  llvm::errs()<< (*PI)->getType().getAsString() << " " <<(*PI)->getType().getTypePtr()->isPointerType()<<" ";
 		  paramTable.add(*PI);
 		}
+		llvm::errs()<<"\n";
 
 
 		if(toRoot)
@@ -97,7 +122,7 @@ bool ScriptWriter::handleFunctionNameAndParameter(FunctionDecl *FD,bool toRoot)
 
 
 		}
-		else{ //end to end case
+		else{ //case of !toRoot
 
 				newFunctionDecl<<"void " << FD->getNameInfo().getAsString() << "( ";
 				for(FunctionDecl::param_iterator PI =  FD->param_begin();PI != FD->param_end();PI++)
@@ -330,27 +355,9 @@ void ScriptWriter::HandleTranslationUnit()
 		llvm::errs()<<"\n";
 
 
-  //generate global decl string
-		  std::string gd;
-				llvm::raw_string_ostream GS(gd);
-		for (vector<Decl *>::iterator it = globalDecl.begin(); it<globalDecl.end();++it)
-		{
-		  if(SM->getFileID((*it)->getLocation()) != SM->getMainFileID())
-    continue;
-		  (*it)->print(GS);
-				GS<<"\n";
-		}
-  GS<<"\n";
-  //handle special function translate
-		for ( vector<CallExpr *>::iterator it=waitRewriteCallExpr.begin() ; it < waitRewriteCallExpr.end(); it++ )
-		{
-				llvm::errs() << Rewrite->ConvertToString(*it) <<"\n";
-				specialFinalFunctionCallHandle(*it);
-		}
 
   //output one script per function 
-		for (vector<FunctionDecl *>::iterator it = functionToRewrite.begin() ; it < functionToRewrite.end(); it++)
-				printScript(llvm::errs(),*it,GS.str());
+	//	for (vector<FunctionDecl *>::iterator it = functionToRewrite.begin() ; it < functionToRewrite.end(); it++)
 
   //FIXME case of output all function once
 
