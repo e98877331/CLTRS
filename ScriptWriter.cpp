@@ -32,7 +32,9 @@ bool ScriptWriter::handleFuncDefinition(FunctionDecl *FD)
 				//functionToRewrite.push_back(FD); 
 
 				if(handleFunctionNameAndParameter(FD,arg_to_root))
-						//   if(true)
+				{
+       
+
 						if(NamedDecl *ND = dyn_cast<NamedDecl>(FD))
 						{
 								//			FD->dump();
@@ -46,6 +48,7 @@ bool ScriptWriter::handleFuncDefinition(FunctionDecl *FD)
 										handleStmt(ST);
 								}
 						}
+				}
 		}
 
 
@@ -58,7 +61,7 @@ bool ScriptWriter::handleFuncDefinition(FunctionDecl *FD)
 		  if(SM->getFileID((*it)->getLocation()) != SM->getMainFileID())
     continue;
 		  (*it)->print(GS);
-				GS<<"\n";
+				GS<<";\n";
 		}
   GS<<"\n";
   //handle special function translate
@@ -90,6 +93,11 @@ bool ScriptWriter::handleFunctionNameAndParameter(FunctionDecl *FD,bool toRoot)
 		for(FunctionDecl::param_iterator PI = FD->param_begin();PI != FD->param_end();PI++)
 		{
 		  llvm::errs()<< (*PI)->getType().getAsString() << " " <<(*PI)->getType().getTypePtr()->isPointerType()<<" ";
+				//setting output parameter for this function
+				if(PI == FD->param_end()-1)
+		  paramTable.setOut(*PI);
+				//setting other parameter for this function
+				else 
 		  paramTable.add(*PI);
 		}
 		llvm::errs()<<"\n";
@@ -98,14 +106,17 @@ bool ScriptWriter::handleFunctionNameAndParameter(FunctionDecl *FD,bool toRoot)
 		if(toRoot)
 		{
 				//case of Parameter number > 2
-				if((int)(FD->getNumParams()) >2)
+			//	if((int)(FD->getNumParams()) >2) //temp command out
+				if(1)
 				{
 
-						newFunctionDecl<<"void root( const CLTRSin * CLTRSinput ,";
+						newFunctionDecl<<"void root( ";
 						ParmVarDecl * PI = FD->getParamDecl(FD->getNumParams()-(unsigned int)1);
 						std::string symName = PI->getName();
 						std::string symType = PI->getTypeSourceInfo()->getType().getAsString();
 						newFunctionDecl << symType << " " << symName;
+
+						newFunctionDecl <<", const void *usrData, uint32_t x , uint32_t y";
 				}
 				else //case of Parameter number <= 2 
 				{
@@ -120,7 +131,9 @@ bool ScriptWriter::handleFunctionNameAndParameter(FunctionDecl *FD,bool toRoot)
 						}
 				}
 
-
+    //add CLTRSinput Decl at the start of function body
+    CompoundStmt * cs = dyn_cast<CompoundStmt>(FD->getBody());
+    Rewrite->InsertText((*(cs->body_begin()))->getLocStart(),"CLTRSin *CLTRSinput = (CLTRSin *)usrData;\n");
 		}
 		else{ //case of !toRoot
 
@@ -192,24 +205,48 @@ Stmt *ScriptWriter::handleStmt(Stmt *ST)
 Stmt *ScriptWriter::RewriteArraySubscript(ArraySubscriptExpr *ASE)
 {
 		llvm::errs() << " LHS: "<< TT(ASE->getLHS()) <<" RHS: "<<TT(ASE->getRHS()) << " BASE: "<< TT(ASE->getBase()) << " IDX: "<<TT(ASE->getIdx())<< "\n";
-
-
-  if(paramTable.find(Rewrite->ConvertToString(ASE->getLHS()))&&CLTRS->getArgToRoot())
+ 
+	 string lhs = Rewrite->ConvertToString(ASE->getLHS());
+  string rhs = Rewrite->ConvertToString(ASE->getRHS());
+  if(paramTable.find(lhs)&&CLTRS->getArgToRoot())
 		{
-   AStoRewrite.push_back(ASE);
+  //  AStoRewrite.push_back(ASE);
+   ParmVarDecl *pvd = paramTable.findForParmDecl(lhs);
+			string newString;
+			newString += "*(";
+			newString += pvd->getType().getAsString();
+			newString += ")rsGetElementAt(CLTRSinput->";
+			newString += pvd->getNameAsString();
+			newString += ",";
+			newString += rhs;
+			newString += ")";
+    
+   Rewrite->ReplaceText(ASE->getSourceRange(),newString);
+			return 0;
 		}
 
+  // if the handling one is result, we can't use other cell because of the output cell is handled before
+  if(paramTable.getOutput()->getNameAsString() == Rewrite->ConvertToString(ASE->getLHS())) 
+		{
+    
+		UnaryOperator *UO = new (Context) UnaryOperator(ASE->getLHS(), UO_Deref, ASE->getType(),
+						VK_LValue, OK_Ordinary,ASE->getSourceRange().getBegin());
+				
+		Rewrite->ReplaceStmt(ASE,UO); 
+				return UO;
+		}
+
+/* ori code
 
 		Expr *Exp = new (Context) BinaryOperator (ASE->getLHS(), ASE->getRHS(), BO_Add, ASE->getType(), ASE->getValueKind(), OK_Ordinary, ASE->getSourceRange().getBegin());
 		ParenExpr *PE = new (Context) ParenExpr(SourceLocation(), SourceLocation(),Exp); 
 		UnaryOperator *UO = new (Context) UnaryOperator(PE, UO_Deref, ASE->getType(),
-						VK_LValue, OK_Ordinary,                                                                                                                                              
-						PE->getSourceRange().getBegin());
+						VK_LValue, OK_Ordinary,PE->getSourceRange().getBegin());
 
-		//	ParenExpr *PE2 = new (Context) ParenExpr(SourceLocation(), SourceLocation(),UO); 
-		Rewrite->ReplaceStmt(ASE,UO);
+		Rewrite->ReplaceStmt(ASE,UO); 
 		return UO;
-
+*/
+  return 0;
 }
 
 Stmt *ScriptWriter::RewriteCallExpr(CallExpr * CE)
@@ -220,14 +257,18 @@ Stmt *ScriptWriter::RewriteCallExpr(CallExpr * CE)
 		waitRewriteCallExpr.push_back(CE);
 		if(!(CE->getDirectCallee()->getNameInfo().getAsString().compare("get_global_id")))
 		{
-				// distributeUnit.insert(std::make_pair(, symType)); 
-				IntegerLiteral *IL = new (Context) IntegerLiteral (*Context, llvm::APInt(32,0), CE->getType(), CE->getSourceRange().getBegin());
+				//IntegerLiteral *IL = new (Context) IntegerLiteral (*Context, llvm::APInt(32,0), CE->getType(), CE->getSourceRange().getBegin());
 
-				//ParenExpr *PE = new (Context) ParenExpr(SourceLocation(), SourceLocation(),IL); 
-				Rewrite->ReplaceStmt(CE,IL);
-				Rewrite->InsertText(IL->getSourceRange().getEnd(),"/*this 0 is generate by replace get_global_id*/");
-
-				return IL;
+			
+			 //Rewrite->ReplaceStmt(CE,IL);
+				//Rewrite->InsertText(IL->getSourceRange().getEnd(),"/*this 0 is generate by replace get_global_id*/");
+				//return IL;
+    Expr * arg = CE->getArg(0);
+				if(Rewrite->ConvertToString(arg) == "0")
+    Rewrite->ReplaceText(CE->getSourceRange(),"x");
+				else if(Rewrite->ConvertToString(arg) == "1")
+				Rewrite->ReplaceText(CE->getSourceRange(),"y");
+				return 0;
 		}
 
 		return 0;
@@ -298,30 +339,79 @@ void ScriptWriter::printScript(llvm::raw_ostream &out,FunctionDecl *fn,string gl
 
 				finalOStream <<globalDecls;
 
-				if(arg_to_root && (fn->getNumParams() > 2))
+    //print global bind decls
+    std::vector<ParmVarDecl *> params = paramTable.getParms();
+    string declForBind;
+				for(std::vector<ParmVarDecl *>::iterator it = params.begin(); it < params.end(); ++it)
+				{
+      if((*it)->getType()->isPointerType())
+      declForBind +="rs_allocation";
+						else
+						declForBind += (*it)->getType().getAsString();
+
+      declForBind += " ";
+						declForBind += (*it)->getNameAsString();
+						declForBind += ";\n";
+
+				}
+
+
+      if(paramTable.getOutput()->getType()->isPointerType())
+      declForBind +="rs_allocation";
+						else
+						declForBind += paramTable.getOutput()->getType().getAsString();
+    declForBind += " ";
+				 declForBind += paramTable.getOutput()->getNameAsString();
+				 declForBind += ";\nrs_script gScript;\n\n";
+
+     outstream << declForBind;
+
+
+    //print CLTRSin struct
+				//if(arg_to_root && (fn->getNumParams() > 2))
+				if(arg_to_root)
 				{
 						string CLTRSinput;
 						CLTRSinput += "typedef struct CLTRSin {\n";
 						for(int i = 0;i<(int)fn->getNumParams()-1;i++)
 						{
+						  if(fn->getParamDecl(i)->getType()->isPointerType())
+								CLTRSinput += "rs_allocation";
+								else
 								CLTRSinput += fn->getParamDecl(i)->getType().getAsString();
+								
 								CLTRSinput += " ";
 								CLTRSinput += fn->getParamDecl(i)->getNameAsString();
 								CLTRSinput +=";\n";
 						}
-						CLTRSinput += "} CLTRSin:\n\n";
+						CLTRSinput += "} CLTRSin;\n\n";
 
 						outstream << CLTRSinput;
 				}
 
 				outstream << output;
+
+
+    //add filter
+				outstream << "\n\nvoid execute()\n{\nCLTRSin CLTRSinput;\n";
+
+				for(std::vector<ParmVarDecl *>::iterator it = params.begin(); it < params.end(); ++it)
+				{
+      outstream <<"CLTRSinput."<<(*it)->getNameAsString()<<" = "<<(*it)->getNameAsString()<<";\n";
+				}
+				 outstream << "rs_allocation unused;\n";
+     outstream << "rsForEach(gScript,unused," << paramTable.getOutput()->getNameAsString();
+					outstream << ",&CLTRSinput,sizeof(CLTRSinput));\n}\n";
+
+
+    //final replacement
 				while(!outstream.eof())
 				{
 						outstream.getline(line,256);
 
 						finalOStream << Modifier->replaceStringAccordingToTable(line,MainTable)<< "\n";
 				}
-				llvm::errs() << finalOStream.str()<<"\n\n";
+				out << finalOStream.str()<<"\n\n";
 		}
 
 

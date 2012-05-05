@@ -37,10 +37,16 @@ static CLTRSTable TranslateTable[] =
 {"CLTRS_TB_END","CLTRS_TB_END"}
 };
 
-
+/* ori table
 static CLTRSFunctionTable FunctionTranslateTable[] =
 {
 {"read_imagef","rsUnpackColor8888(*%s)","1"},
+{"write_imagef","*%s = rsPackColorTo8888(%s)","13"}
+};
+*/
+static CLTRSFunctionTable FunctionTranslateTable[] =
+{
+{"read_imagef","rsUnpackColor8888(*(uchar4 *)rsGetElementAt(CLTRSinput->%s,x,y))","1"},
 {"write_imagef","*%s = rsPackColorTo8888(%s)","13"}
 };
 

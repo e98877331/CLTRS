@@ -48,23 +48,55 @@ std::vector<DeclRefExpr *> DREtoRewrite;
 class ParamTable
 {
 private:
-std::vector<string> params;
+std::vector<ParmVarDecl *> params;
+
+ParmVarDecl * output;
 public:
 
 void add(ParmVarDecl * PVD)
-{params.push_back(PVD->getNameAsString());}
+{params.push_back(PVD);}
+
+void setOut(ParmVarDecl *PVD)
+{
+ output = PVD;
+}
 void clear()
-{params.clear();}
+{
+params.clear();
+output = NULL;
+}
 
 bool find(string s)
 {
-  for(std::vector<string>::iterator it = params.begin();it < params.end();++it)
+  for(std::vector<ParmVarDecl *>::iterator it = params.begin();it < params.end();++it)
 		{
-		 if(*it == s)
+		 if((*it)->getNameAsString() == s)
 			 return true;
 		}
     return false;
 }
+
+ParmVarDecl * findForParmDecl(string s)
+{
+  for(std::vector<ParmVarDecl *>::iterator it = params.begin();it < params.end();++it)
+		{
+		 if((*it)->getNameAsString() == s)
+			 return (*it);
+		}
+    return NULL;
+
+}
+
+std::vector<ParmVarDecl *> getParms()
+{
+ return params;
+}
+
+ParmVarDecl * getOutput()
+{
+return output;
+}
+
 };
 
 ParamTable paramTable;
